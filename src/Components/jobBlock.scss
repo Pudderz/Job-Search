@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Spartan');
+
+body{
+    background-color: hsl(180, 52%, 96%);
+    margin: 0px;
+
+}
+*{
+    font-size: 15px;
+    font-family: 'Spartan';
+}
+
+
+.item{
+    margin: 1% 5%; 
+    display: flex;
+    background-color: white;
+    box-shadow: 1px 1px 5px 0px hsl(180, 8%, 52%);
+    border-radius: 5px;
+    padding: 0 2% 0 0;
+    position: relative;
+    
+}
+.featuredtrue{
+    border-left: hsl(180, 29%, 50%) solid;
+}
+
+.logo{
+    
+    width: 100px;
+    min-height: 100%;
+    position: relative;
+    text-align: center ;
+    
+}
+.logoImage{
+    margin: auto 0;
+    object-fit: contain;
+    height: 100%;
+}
+
+.grid{
+    display: grid;
+    padding: 0px 20px 0 0;
+}
+    
+
+.extraInfo{
+    display: flex;
+}
+.extraInfo p{
+    margin-right: 10px ;
+    color:  hsl(180, 8%, 52%);
+    font-size: small;
+    margin-bottom: 5px;
+}
+
+.tags{
+    display: flex;
+    flex-wrap: wrap;
+    margin: auto 0;
+    justify-content: flex-end;
+    width: 100%;
+    gap: 2%;
+    margin-right: inherit;
+    p{
+        padding: 5px;
+        font-size: medium;
+        background-color: hsl(180, 31%, 95%);
+        font-weight: 1000;
+        color: hsl(180, 29%, 50%);
+        border-radius: 5px;
+        margin: 1% 0px;
+        cursor: pointer;
+        &:hover{
+            background-color: hsl(180, 29%, 50%);
+            color: hsl(180, 31%, 95%);
+        }
+    }
+    
+
+
+}
+
+.jobName{
+    color:black;
+    font-weight: 700;
+    font-family: 'Spartan', sans-serif;
+    margin: 0;
+    cursor: pointer;
+    &:hover{
+        color:hsl(180, 29%, 50%);
+    }
+}
+.features{
+    display: flex;
+    justify-content: space-between;
+    width: fit-content;
+    gap:2%;
+    
+    .company{
+        color: hsl(180, 29%, 50%);
+        font-weight: 700;
+        padding: 4px;
+        height: fit-content;
+        font-weight: bolder;
+    }
+
+}
+
+
+
+.new{
+    color: white;
+    background: hsl(180, 29%, 50%);
+    border-radius: 5px;
+    border-radius: 10px;
+    padding: 4px;
+    height: fit-content;
+    font-weight: bolder;
+}
+.lineBreak{
+    display: none;
+}
+
+@media (max-width: 700px){
+    .item{
+        display: block;
+        padding: 25px 20px 20px 20px;
+        margin: 50px 3%;
+    }
+    .tags{
+        justify-content: flex-start;
+    }
+    .lineBreak{
+        display: block;
+    }
+    .logo{
+        position: absolute;
+        top: -50px;
+        text-align: start;
+        min-height: fit-content;
+    }
+    .logoImage{
+        height: 100px;
+    }
+    .grid{
+        padding: 0px;
+    }
+}

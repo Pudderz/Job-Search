@@ -1,0 +1,22 @@
+
+#headerBackground{
+    background-image: url('./images/bg-header-desktop.svg');
+    background-size: cover;
+    background-color: hsl(180, 29%, 50%);
+    background-position: center;
+    height: 13vh;
+    margin-bottom: 8vh;
+
+    @media (max-width: 700px){
+            background-image: url('./images/bg-header-mobile.svg'); 
+    }
+
+}
+body{
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+ul{
+    padding: 0;
+}
