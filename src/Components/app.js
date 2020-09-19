@@ -1,8 +1,10 @@
 import React from 'react';
-import {data} from '../data';
+// import {data} from '../data';
 import Search from './searchBar';
 import JobBlock from './jobBlock';
 import './styles.scss';
+
+let data = [];
 
 let result = true
 let listOfTags='';
@@ -12,7 +14,7 @@ class App extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            jobResults: JSON.parse(data),
+            jobResults: data,
             searchValue:'',
             options:{
             method: 'GET',
@@ -25,19 +27,22 @@ class App extends React.Component{
 }
 
 
-    loadJobs= async()=>{
-        let response = await fetch('http://localhost:3000/', this.state.options)
+    loadJobs= async(querySearch, location)=>{
+        let url = new URL('http://localhost:3000')
+        url.searchParams.set('q', querySearch)
+        url.searchParams.set('location', location)
+        let response = await fetch(url, this.state.options)
         let json = await response.json();
         this.setState({
             jobResults: json,
         }) 
     }
 
-    searchChange=e=>{
+    searchChange=(value, location)=>{
         this.setState({
-            searchValue: e,
-            jobResults: this.loadJobs(e),
-        })
+            searchValue: value,
+        }, ()=>{this.loadJobs(value, location)})
+        
     }
 
     removeSearch= e=>{
@@ -61,7 +66,6 @@ class App extends React.Component{
                 <div id="headerBackground">
                 </div>
                <Search value={this.state.searchValue} onSearchChange={this.searchChange} removeValue={this.removeSearch}/>
-               <button onClick={this.loadJobs}>Click</button>
                <ul>
                 {this.state.jobResults.map((data,index)=>{
                     return(

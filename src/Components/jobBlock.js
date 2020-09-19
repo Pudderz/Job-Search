@@ -33,7 +33,8 @@ class JobBlock extends React.Component{
                 <hr className="lineBreak"/>
                 <div className="tags">
                     <p>{this.props.jobDetails.summary}</p>
-                    <a href={`https://www.indeed.co.uk${this.props.jobDetails.link}`} target="_blank" rel="noopener">Link to site</a>
+                    <button className="save" onClick={console.log('save')}>Save</button>
+                    <a href={`https://www.indeed.co.uk${this.props.jobDetails.link}`} target="_blank" rel="noopener noreferrer">Link to site</a>
                     {/* <Tag onTagClick={this.props.onTagClick} role={this.props.jobDetails.role} level={this.props.jobDetails.level} languages={this.props.jobDetails.languages} tools={this.props.jobDetails.tools}/> */}
                 </div>    
             </li>

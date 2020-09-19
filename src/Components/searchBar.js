@@ -3,26 +3,41 @@ import './searchStyles.scss'
 import SearchResult from './searchResult.js';
 
 class search extends Component {
-    changeValue=(event)=>{
-        this.props.onSearchChange(event)
+    constructor(props){
+        super(props)
+        this.state={
+            value: '',
+            location:'',
+        }
     }
-    onRemoveClicked=(event)=>{
-        this.props.removeValue(event)
+    changeSearch=(event)=>{
+        this.setState({
+            value: event.target.value
+        })
+    }
+    changeLocation=(event)=>{
+        this.setState({
+            location: event.target.value
+        })
+    }
+    onSubmit=(e)=>{
+        e.preventDefault();
+        this.props.onSearchChange(this.state.value,this.state.location)
     }
 
     render() {
-        if(!this.props.value){
-            return <></>
-        }
         return (
             <div id="search">
-        
-            {this.props.value.split(' ').map((result, index)=>{
-                return(
-                   <SearchResult key={index} result = {result} onRemoveValue={(e)=>this.onRemoveClicked(e)}/> 
-                )
-            })}
-            <input className="clear" type="button" value="Clear" onClick={(e)=>this.changeValue('')}/>
+                    
+                   {/* <SearchResult key={index} result = {result} onRemoveValue={(e)=>this.onRemoveClicked(e)}/>  */}
+                   <form>
+                        <input type="search" onChange={this.changeSearch} required placeholder="Search Jobs"/>  
+                        <input type="search" onChange={this.changeLocation} required placeholder="Location"/> 
+                        <div className="button">
+                        <button className="clear" type="submit" onClick={this.onSubmit}>Search</button>
+                        <input className="clear" type="button" value="Clear" />
+                        </div> 
+            </form>
             {/*
                 Old search, however in the design we dont need to search we just need to filter the categorys and put the results in a search bar when clicked on
 

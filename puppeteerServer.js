@@ -3,17 +3,19 @@ const express = require('express');
 const cors = require('cors');
 const port = 3000;
 const app = express();
+let browser;
 
-
-app.listen(port, ()=>{
+app.listen(port, async()=>{
     console.log('test')
+    browser = await puppeteer.launch({headless: false})
 })
 
 app.use(cors());
+
 app.get('/', function(req, res){
     (async () =>{
         let array=[];
-        const browser = await puppeteer.launch({headless: false})
+        
         //creates a new page
         const page = await browser.newPage();
 
@@ -26,10 +28,11 @@ app.get('/', function(req, res){
                 req.continue();
             }
         })
-
-        let location = 'london';
         let searchQuery = 'Junior+JavaScript';
-        let url = `https://www.indeed.co.uk/jobs?q=${searchQuery}&l=${location}/`;
+        if(req.query.q) searchQuery = req.query.q; 
+        let location = 'london';
+        if(req.query.location) location = req.query.location;
+        let url = `https://www.indeed.co.uk/jobs?q=${searchQuery}&l=${location}`;
         await page.goto(url);
         await page.waitForSelector('title');
         const title = await page.title();
@@ -41,33 +44,38 @@ app.get('/', function(req, res){
         
         const data = await page.$$('div.jobsearch-SerpJobCard')
         data.forEach(async (info, index) => {
-            
-            let postedAt = await info.$eval('.date', date => date.textContent);
-            let company = await info.$eval('.company', date => date.textContent);
+            let [postedAt, company, location, summary, moreInfo, position] = await Promise.allSettled([
+                info.$eval('.date', date => date.textContent),
+                info.$eval('.company', date => date.textContent),
+                info.$eval('.location', date => date.textContent),
+                info.$eval('.summary', date => date.textContent),
+                info.$$eval('h2>a', node => node.map((e) => e.getAttribute('href'))),
+                info.$$eval('h2>a', node => node.map((e) => e.getAttribute('title'))),
+            ])
+            // let postedAt = await info.$eval('.date', date => date.textContent);
             let salary = await info.$('.salary');
             if(salary){
                 salary = await salary.evaluate(node => node.textContent)
             }
-            let location = await info.$eval('.location', date => date.textContent)
-            let summary = await info.$eval('.summary', date => date.textContent);
-            let moreInfo = await info.$$eval('h2>a', node => node.map((e) => e.getAttribute('href')));
-            let position = await info.$$eval('h2>a', node => node.map((e) => e.getAttribute('title')));
             console.log(moreInfo);
             array.push({
-                'position': position,
-                'postedAt': postedAt,
-                'location': location,
-                'company': company,
+                'position': position.value,
+                'postedAt': postedAt.value,
+                'location': location.value,
+                'company': company.value,
                 'salary' : salary,
-                'summary': summary,
-                'link': moreInfo,
+                'summary': summary.value,
+                'link': moreInfo.value,
             });
             if(index== data.length-1){
                res.send(JSON.stringify(array)); 
                console.log(array);
-                page.close();
+            //    page.close() 
             }
         })
+        let linkedInUrl = 'https://www.linkedin.com/jobs/search?keywords=Apple&location=london'
+        const linkedInPage = await browser.newPage();
+        await linkedInPage.goto(linkedInUrl)
     })();
 })
 

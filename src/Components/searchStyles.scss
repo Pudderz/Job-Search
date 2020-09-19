@@ -13,12 +13,18 @@
     padding-right: 50px;
     gap: 10px;
     z-index: 1;
-    
-    .clear{
-        position: absolute;
+    .button{
+       position: absolute;
         right: 2%;
-        top: 50%;
+        top: 50%; 
         transform: translate(0%, -50%);
+        display: flex;
+        gap: 10px;
+        @media(max-width:700px) {
+            display: grid;
+        }
+    }
+    .clear{
         background: none;
         border-style: none;
         outline: none;
@@ -30,6 +36,9 @@
            color: hsl(180, 29%, 50%); 
            text-decoration: underline;
         }
+    }
+    input[type=search]{
+        border-style: none;
     }
 }
 input[type=search]:focus{
@@ -62,4 +71,14 @@ input[type=search]:focus{
     }
     
     
+}
+
+form{
+    display: grid;
+    grid-template-columns: 60% 20% 10%;
+    width: 100%;
+    @media(max-width:700px) {
+    grid-template-columns: 100%;
+    gap: 20px;
+    }
 }
