@@ -1,9 +1,6 @@
 import React from 'react';
 import './jobBlock.scss';
-import New from './new';
-import Featured from './featured';
-import Tag from './tag';
-import Logo from './logo'
+import Link from './link'
 
 
 class JobBlock extends React.Component{
@@ -18,8 +15,6 @@ class JobBlock extends React.Component{
                 <div className="grid">
                     <div className="features">
                         <p className="company">{this.props.jobDetails.company}</p>
-                        {/* <New className="new" new= {this.props.jobDetails.new}/> */}
-                        {/* <Featured className="featured" featured={this.props.jobDetails.featured}/> */}
                     </div>
                     <h2 className="jobName">
                         {this.props.jobDetails.position}  
@@ -33,9 +28,10 @@ class JobBlock extends React.Component{
                 <hr className="lineBreak"/>
                 <div className="tags">
                     <p>{this.props.jobDetails.summary}</p>
+                    <p className="site">{this.props.jobDetails.site}</p>
                     <button className="save" onClick={console.log('save')}>Save</button>
-                    <a href={`https://www.indeed.co.uk${this.props.jobDetails.link}`} target="_blank" rel="noopener noreferrer">Link to site</a>
-                    {/* <Tag onTagClick={this.props.onTagClick} role={this.props.jobDetails.role} level={this.props.jobDetails.level} languages={this.props.jobDetails.languages} tools={this.props.jobDetails.tools}/> */}
+                    <Link link={this.props.jobDetails.link} site={this.props.jobDetails.site}/>
+                    
                 </div>    
             </li>
         );

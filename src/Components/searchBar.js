@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './searchStyles.scss'
-import SearchResult from './searchResult.js';
 
 class search extends Component {
     constructor(props){
@@ -25,6 +24,15 @@ class search extends Component {
         this.props.onSearchChange(this.state.value,this.state.location)
     }
 
+    changeSearch=(event)=>{
+        if(this.state.value){
+            this.setState({
+                value: '',
+                location: '',
+            })
+        }
+    }
+
     render() {
         return (
             <div id="search">
@@ -35,7 +43,7 @@ class search extends Component {
                         <input id="location" type="search" onChange={this.changeLocation} required placeholder="Location"/> 
                         <div className="button">
                         <button className="clear" type="submit" onClick={this.onSubmit}>Search</button>
-                        <input className="clear" type="button" value="Clear" />
+                        <input className="clear" type="button" value="Clear" onClick={this.changeSearch}/>
                         </div> 
             </form>
             {/*

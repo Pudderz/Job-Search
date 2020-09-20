@@ -5,8 +5,8 @@ let browser;
 const app = express()
 
 app.listen(port, async()=>{
-    console.log('test')
-    
+    console.log('listening on :3000')
+    browser = await puppeteer.launch({headless: false})
 })
 
 
@@ -30,7 +30,7 @@ function scrapeJobs(res, req) {
         let object={};
         let i = 0;
         //Creates a new page
-        let browser = await puppeteer.launch({headless: false})
+        if(!browser)browser = await puppeteer.launch({headless: false})
         const page = await browser.newPage();
         await page.setViewport({
             width: 1500,
@@ -89,14 +89,14 @@ function scrapeJobs(res, req) {
         }
         let linkedInUrl = `https://www.linkedin.com/jobs/search?keywords=${searchQuery}&location=${location}`
         const linkedInPage = await browser.newPage();
-        
-        // linkedInPage.on('request', req=>{
-        //     if(req.resourceType() === 'stylesheet'|| req.resourceType() === 'font'){
-        //         req.abort();
-        //     }else{
-        //         req.continue();
-        //     }
-        // })
+        linkedInPage.setRequestInterception(true);
+        linkedInPage.on('request', req=>{
+            if(req.resourceType() === 'stylesheet'|| req.resourceType() === 'font'){
+                req.abort();
+            }else{
+                req.continue();
+            }
+        })
         const iPhone = puppeteer.devices['iPhone 6']
         await linkedInPage.emulate(iPhone);
         let index = i;
@@ -132,10 +132,12 @@ function scrapeJobs(res, req) {
             console.log('linkedIn', array[index-1])
             res.write(`event: newData\ndata: ${JSON.stringify(array[index-1])} \n\n`)
             index++;        
-            if(index-i-2== data.length-1){
+            if(index-i-1== linkedInResults.length){
                 res.write(`event: close\ndata: indeed\n\n`)
-                page.close()   
+                page.close();  
+                linkedInPage.close();
                 // completed(true,false);
+                console.log('closed')
             } 
             console.log('end')
         }

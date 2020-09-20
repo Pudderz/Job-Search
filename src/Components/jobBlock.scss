@@ -54,7 +54,16 @@ body{
     font-size: small;
     margin-bottom: 5px;
 }
-
+.site{
+    color:black;
+    font-weight: 700;
+    font-family: 'Spartan', sans-serif;
+    margin: 0;
+    cursor: pointer;
+    &:hover{
+        color:hsl(180, 29%, 50%);
+    }
+}
 .tags{
     display: flex;
     flex-wrap: wrap;
@@ -132,6 +141,9 @@ body{
 .lineBreak{
     display: none;
 }
+
+
+
 
 @media (max-width: 700px){
     .item{

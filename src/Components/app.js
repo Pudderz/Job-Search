@@ -1,13 +1,7 @@
 import React from 'react';
-// import {data} from '../data';
 import Search from './searchBar';
 import JobBlock from './jobBlock';
 import './styles.scss';
-
-let data = [];
-
-let result = true
-let listOfTags='';
 
 
 class App extends React.Component{
@@ -88,9 +82,9 @@ class App extends React.Component{
                 </div>
                <Search value={this.state.searchValue} onSearchChange={this.searchChange} removeValue={this.removeSearch}/>
                <ul>
-                {this.state.jobResults.map((data,index)=>{
+                {this.state.jobResults.map( data => {
                     return(
-                    <JobBlock key={data.id} jobDetails={data} onTagClick={this.tagClick}/>
+                    <JobBlock key={data.id} jobDetails={data}/>
                     )
                 })
                 }

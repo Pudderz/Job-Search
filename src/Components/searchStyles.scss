@@ -45,44 +45,21 @@
 
         /* clears the 'X' from Chrome */
         input[type="search"]::-webkit-search-decoration,
-        input[type="search"]::-webkit-search-cancel-button,
-        input[type="search"]::-webkit-search-results-button,
-        input[type="search"]::-webkit-search-results-decoration { display: none; }
+            input[type="search"]::-webkit-search-cancel-button,
+            input[type="search"]::-webkit-search-results-button,
+            input[type="search"]::-webkit-search-results-decoration {
+             display: none; 
+            }
     }
     #location{
         border-left: #7b8e8e 1px solid;
+        @media (max-width:700px){
+            border-style: none;
+        }
     }
 }
 input[type=search]:focus{
     outline: none;
-}
-
-.searchResult{
-    width: fit-content;
-    height: fit-content;
-    display: flex;
-    font-weight: bolder;
-    font-size: small;
-    background-color: #eef6f6;
-    font-weight: 1000;
-    color: #5ba4a4;
-    border-radius: 5px;
-    overflow: hidden;
-    button{
-        background-color: hsl(180, 29%, 50%);
-        color: white;
-        border-style: none;
-        line-height: 105%;
-        font-size: 150%;
-    }
-    p{
-        margin: 0px;
-        line-height: 155%;
-        padding: 5px;
-        font-weight: 1000;
-    }
-    
-    
 }
 
 form{
