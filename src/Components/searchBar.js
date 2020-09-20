@@ -32,7 +32,7 @@ class search extends Component {
                    {/* <SearchResult key={index} result = {result} onRemoveValue={(e)=>this.onRemoveClicked(e)}/>  */}
                    <form>
                         <input type="search" onChange={this.changeSearch} required placeholder="Search Jobs"/>  
-                        <input type="search" onChange={this.changeLocation} required placeholder="Location"/> 
+                        <input id="location" type="search" onChange={this.changeLocation} required placeholder="Location"/> 
                         <div className="button">
                         <button className="clear" type="submit" onClick={this.onSubmit}>Search</button>
                         <input className="clear" type="button" value="Clear" />
