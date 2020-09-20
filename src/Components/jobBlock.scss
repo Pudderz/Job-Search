@@ -96,9 +96,16 @@ body{
             text-decoration: underline;
         }
     }
-    
-
-
+    .site{
+        color:hsl(180, 29%, 50%);
+        font-weight: 700;
+        font-family: 'Spartan', sans-serif;
+        margin: 0;
+        cursor: pointer;
+        &:hover{
+            color:black;
+        }
+    }
 }
 
 .jobName{
@@ -141,8 +148,6 @@ body{
 .lineBreak{
     display: none;
 }
-
-
 
 
 @media (max-width: 700px){

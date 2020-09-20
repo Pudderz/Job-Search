@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-
+import React, { Component } from 'react';
+import './link.scss';
 class Link extends Component {
     render() {
         if(this.props.site === 'indeed'){

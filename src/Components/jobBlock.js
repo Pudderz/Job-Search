@@ -28,10 +28,9 @@ class JobBlock extends React.Component{
                 <hr className="lineBreak"/>
                 <div className="tags">
                     <p>{this.props.jobDetails.summary}</p>
-                    <p className="site">{this.props.jobDetails.site}</p>
                     <button className="save" onClick={console.log('save')}>Save</button>
                     <Link link={this.props.jobDetails.link} site={this.props.jobDetails.site}/>
-                    
+                    <p className="site">{this.props.jobDetails.site}</p>
                 </div>    
             </li>
         );
