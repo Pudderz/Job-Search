@@ -24,35 +24,19 @@ class search extends Component {
         this.props.onSearchChange(this.state.value,this.state.location)
     }
 
-    changeSearch=(event)=>{
-    }
+   
 
     render() {
         return (
             <div id="search">
-                    
-                   {/* <SearchResult key={index} result = {result} onRemoveValue={(e)=>this.onRemoveClicked(e)}/>  */}
-                   <form>
+                <form>
                         <input type="search" onChange={this.changeSearch} required placeholder="Search Jobs"/>  
                         <input id="location" type="search" onChange={this.changeLocation} required placeholder="Location"/> 
                         <div className="button">
                         <button className="clear" type="submit" onClick={this.onSubmit}>Search</button>
                         <input className="clear" type="button" value="Clear" onClick={this.changeSearch}/>
                         </div> 
-            </form>
-            {/*
-                Old search, however in the design we dont need to search we just need to filter the categorys and put the results in a search bar when clicked on
-
-                <input list="searches" value={this.props.value} name="options" id="search" onChange={(e)=>this.changeValue(e)} placeholder="Search Category" multiple/>
-                <datalist id="searches">
-                    <option value="fullstack"/>
-                    <option value="midweight"/>
-                    <option value="junior"/>  
-                    <option value="python"/>
-                <option value="ruby"/>
-                <option value="css"/>
-                <option value="javascript"/>
-                </datalist> */}
+                </form>
             </div>
         )
     }

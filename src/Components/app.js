@@ -6,7 +6,6 @@ import './styles.scss';
 let linkedInLoaded = false;
 let indeedLoaded = false;
 
-
 class App extends React.Component{
     constructor(props){
         super(props);
@@ -22,11 +21,10 @@ class App extends React.Component{
 
     loadJobs= (querySearch, location)=>{
         const url = new URL('http://localhost:3000/stream');
-        console.log(querySearch)
         url.searchParams.set('q', querySearch);
         url.searchParams.set('location', location);
         const sse = new EventSource(url);
-        let loadamount = 2;
+        const loadamount = 2;
         this.setState({
             displayLoadbar: 'block',
             loadBarProgress:1,
@@ -41,11 +39,8 @@ class App extends React.Component{
       
         sse.onerror = function (e) {
             console.log("error occured "+ JSON.stringify(e));
+            sse.close();
           };
-        
-        sse.addEventListener('size', (event)=>{
-            loadamount = (100-22)/((event.data)*1)
-        })
 
         sse.addEventListener('newData',(event)=> {
             console.log("received")
@@ -95,10 +90,27 @@ class App extends React.Component{
         
     //     console.log(this.state.searchValue)
     // }
-    sortData(){
-
+    quickSortData(array, ){
+        if(array.length <= 1){
+            return array;
+        }
+        const pivot = array[array.length-1]['time'];
+        const lessThanPivot=[];
+        const moreThanPivot=[];
+        for(let i = 0; i< array.length-1; i++){
+            if(typeof(array[i]['time']) === undefined || +array[i]['time']<= pivot){
+                lessThanPivot.push(array[i])  
+            }else{
+                moreThanPivot.push(array[i])
+            }
+        }
+        return [...this.quickSortData(lessThanPivot),array[array.length-1],...this.quickSortData(moreThanPivot)]
     }
-
+    sortData=()=>{
+        this.setState({
+            jobResults: this.quickSortData(this.state.jobResults, 'time'),
+        })
+    }
     tagClick= e =>{
         this.searchChange(`${this.state.searchValue} ${e}`);
     }
@@ -110,6 +122,7 @@ class App extends React.Component{
                 </div>
                <Search value={this.state.searchValue} onSearchChange={this.searchChange}/>
                <LoadBar progress = {this.state.loadBarProgress} show={this.state.displayLoadbar} />
+               <button onClick={this.sortData}>Sort Data</button>
                <ul>
                 {this.state.jobResults.map( data => {
                     return(
