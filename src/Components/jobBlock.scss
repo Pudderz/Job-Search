@@ -21,9 +21,6 @@ body{
     position: relative;
     
 }
-.featuredtrue{
-    border-left: hsl(180, 29%, 50%) solid;
-}
 
 .logo{
     
@@ -42,8 +39,7 @@ body{
 .grid{
     display: grid;
     padding: 0px 20px 0 0;
-}
-    
+}   
 
 .extraInfo{
     display: flex;

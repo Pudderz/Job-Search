@@ -1,0 +1,16 @@
+#loadBar{
+    height: 20px;
+    margin: 1% 5%; 
+    display: flex;
+    background-color: white;
+    box-shadow: 1px 1px 5px 0px hsl(180, 8%, 52%);
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+    div{
+        height: 20px;
+        margin: 0px;
+        background-color: hsl(180, 29%, 50%);
+        transition: ease-out;
+    }
+}

@@ -1,7 +1,10 @@
 import React from 'react';
 import Search from './searchBar';
 import JobBlock from './jobBlock';
+import LoadBar from './LoadBar';
 import './styles.scss';
+let linkedInLoaded = false;
+let indeedLoaded = false;
 
 
 class App extends React.Component{
@@ -10,46 +13,68 @@ class App extends React.Component{
         this.state = {
             jobResults: [],
             searchValue:'',
-            options:{
-            method: 'GET',
-            headers:{
-              'Content-Type': 'application/json',
-              "Access-Control-Allow-Origin": "http://localhost:3001",
-            },
+            displayLoadbar: 'none',
+            loadBarProgress: 0,
         }
     }
-    }
+    
 
 
     loadJobs= (querySearch, location)=>{
-        let url = new URL('http://localhost:3000/stream')
-        url.searchParams.set('q', querySearch)
-        url.searchParams.set('location', location)
-        let sse = new EventSource(url)
+        const url = new URL('http://localhost:3000/stream');
+        console.log(querySearch)
+        url.searchParams.set('q', querySearch);
+        url.searchParams.set('location', location);
+        const sse = new EventSource(url);
+        let loadamount = 2;
+        this.setState({
+            displayLoadbar: 'block',
+            loadBarProgress:1,
+        })
         sse.onopen = ()=> {
             console.log("Sse connection opened");
             this.setState({
                 jobResults : [],
+                loadBarProgress:22,
              })
           };
       
         sse.onerror = function (e) {
             console.log("error occured "+ JSON.stringify(e));
           };
-      
+        
+        sse.addEventListener('size', (event)=>{
+            loadamount = (100-22)/((event.data)*1)
+        })
+
         sse.addEventListener('newData',(event)=> {
             console.log("received")
             console.log(event.data);
             console.log(this.state.jobResults)
-            let sseResult = JSON.parse(event.data)
-            this.state.jobResults.push(sseResult)
+            this.state.jobResults.push(JSON.parse(event.data))
              this.setState({
                  jobResults : this.state.jobResults,
+                 loadBarProgress: this.state.loadBarProgress+ loadamount,
               })
         });
         
-        sse.addEventListener('close',function (event) {
-            sse.close();
+        sse.addEventListener('close',(event)=> {
+            if(event.data ==='indeed'){
+                indeedLoaded = true;
+            } else if(event.data ==='linkedIn'){
+                linkedInLoaded = true;
+            }
+            if(linkedInLoaded && indeedLoaded){
+                sse.close();
+                console.log('closing connection')
+                linkedInLoaded = false;
+                indeedLoaded = false;
+                this.setState({
+                    loadBarProgress: 100,
+                    displayLoadbar: 'none',
+
+                })
+            }
         });
     }
 
@@ -60,27 +85,31 @@ class App extends React.Component{
         
     }
 
-    removeSearch= e=>{
-        this.setState({
-            searchValue: this.state.searchValue.split(' ').filter((item, index)=> item!== e).join(' '),
+    // removeSearch= e=>{
+    //     this.setState({
+    //         searchValue: this.state.searchValue.split(' ').filter((item, index)=> item!== e).join(' '),
 
-        },()=>{this.setState({
-            jobResults: this.loadJobs(this.state.searchValue),
-        })})
+    //     },()=>{this.setState({
+    //         jobResults: this.loadJobs(this.state.searchValue),
+    //     })})
         
-        console.log(this.state.searchValue)
-    }
+    //     console.log(this.state.searchValue)
+    // }
+    sortData(){
 
+    }
 
     tagClick= e =>{
         this.searchChange(`${this.state.searchValue} ${e}`);
     }
     render(){
         return(
-            <React.Fragment>
+            <main>
+                
                 <div id="headerBackground">
                 </div>
-               <Search value={this.state.searchValue} onSearchChange={this.searchChange} removeValue={this.removeSearch}/>
+               <Search value={this.state.searchValue} onSearchChange={this.searchChange}/>
+               <LoadBar progress = {this.state.loadBarProgress} show={this.state.displayLoadbar} />
                <ul>
                 {this.state.jobResults.map( data => {
                     return(
@@ -89,7 +118,7 @@ class App extends React.Component{
                 })
                 }
                 </ul>
-            </React.Fragment>
+            </main>
         )
     }
 }

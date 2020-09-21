@@ -46,8 +46,8 @@ function scrapeJobs(res, req) {
                 req.continue();
             }
         })
-        const searchQuery = (req.query.q)? req.query.q : 'Junior+JavaScript'; 
-        const location = (req.query.location)? req.query.location: 'london';
+        const searchQuery = req.query.q; 
+        const location = req.query.location;
         let url = `https://www.indeed.co.uk/jobs?q=${searchQuery}&l=${location}`;
         await page.goto(url);
         await page.waitForSelector('div.jobsearch-SerpJobCard');
@@ -82,6 +82,7 @@ function scrapeJobs(res, req) {
             res.write(`event: newData\ndata: ${JSON.stringify(array[i])} \n\n`)
             i++;        
             if(i== data.length){
+                res.write(`event: close\ndata: indeed\n\n`)
                 //res.write(`event: close\ndata: indeed\n\n`)
                 //page.close()   
                 // completed(true,false);
@@ -113,7 +114,7 @@ function scrapeJobs(res, req) {
             const location = await results.$eval('div.base-search-card__info > h4', node=> node.textContent)
             const divResults = await results.$('div.base-search-card');
             const position = await divResults.$eval('h3.base-search-card__title', node=> node.textContent)
-            const summary = await divResults.$eval('div.base-search-card__info > div > p', node=> node.textContent)
+            const summary = await divResults.$eval('div.base-search-card__metadata > p', node=> node.textContent)
             const postedAt = await divResults.$eval('div.base-search-card__info > div > time', node=> node.textContent)
             //let image = await results.$eval('img', node=> node.map((e) => e.getAttribute('src')));
             const moreInfo = await results.$eval('a.base-search-card__full-link', node=> node.getAttribute('href'));
@@ -133,7 +134,7 @@ function scrapeJobs(res, req) {
             res.write(`event: newData\ndata: ${JSON.stringify(array[index-1])} \n\n`)
             index++;        
             if(index-i-1== linkedInResults.length){
-                res.write(`event: close\ndata: indeed\n\n`)
+                res.write(`event: close\ndata: linkedIn\n\n`)
                 page.close();  
                 linkedInPage.close();
                 // completed(true,false);

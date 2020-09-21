@@ -25,12 +25,6 @@ class search extends Component {
     }
 
     changeSearch=(event)=>{
-        if(this.state.value){
-            this.setState({
-                value: '',
-                location: '',
-            })
-        }
     }
 
     render() {
