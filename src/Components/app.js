@@ -3,8 +3,7 @@ import Search from './searchBar';
 import JobBlock from './jobBlock';
 import LoadBar from './LoadBar';
 import './styles.scss';
-let linkedInLoaded = false;
-let indeedLoaded = false;
+
 
 class App extends React.Component{
     constructor(props){
@@ -20,6 +19,8 @@ class App extends React.Component{
 
 
     loadJobs= (querySearch, location)=>{
+        let linkedInLoaded = false;
+        let indeedLoaded = false;
         const url = new URL('http://localhost:3000/stream');
         url.searchParams.set('q', querySearch);
         url.searchParams.set('location', location);
@@ -49,6 +50,7 @@ class App extends React.Component{
             this.state.jobResults.push(JSON.parse(event.data))
              this.setState({
                  jobResults : this.state.jobResults,
+                 //increases the loadbar by 2 till loadBar is complete
                  loadBarProgress: this.state.loadBarProgress+ loadamount,
               })
         });
@@ -56,18 +58,15 @@ class App extends React.Component{
         sse.addEventListener('close',(event)=> {
             if(event.data ==='indeed'){
                 indeedLoaded = true;
-            } else if(event.data ==='linkedIn'){
+            }else if(event.data ==='linkedIn'){
                 linkedInLoaded = true;
             }
             if(linkedInLoaded && indeedLoaded){
                 sse.close();
                 console.log('closing connection')
-                linkedInLoaded = false;
-                indeedLoaded = false;
                 this.setState({
                     loadBarProgress: 100,
                     displayLoadbar: 'none',
-
                 })
             }
         });
