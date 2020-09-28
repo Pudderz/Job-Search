@@ -2,25 +2,17 @@
   "name": "job-listings",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://pudderz.github.io/Job-Search/",
+  "homepage": ".",
+  "main": "index.js",
   "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.5.0",
-    "@testing-library/user-event": "^7.2.1",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "node-sass": "^4.14.1",
-    "puppeteer": "^5.3.0"
+    "puppeteer": "^5.3.0",
+    "react-router-dom": "^5.2.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
+    "start": "node index.js"
   },
   "browserslist": {
     "production": [
@@ -36,5 +28,9 @@
   },
   "devDependencies": {
     "gh-pages": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=10.0.0",
+    "npm": ">=6.0.0"
   }
 }

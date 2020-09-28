@@ -7,8 +7,8 @@ import FrontPage from './Components/frontPage';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App/>
-    {/* <FrontPage/> */}
+    {/* <App/> */}
+    <FrontPage/>
   </React.StrictMode>,
   document.getElementById('root')
 );

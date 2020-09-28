@@ -4,7 +4,9 @@ import Link from './link'
 
 
 class JobBlock extends React.Component{
-    
+    shouldComponentUpdate = (nextProps, nextState)=>{
+
+    }
     render(){
         return(
             <li className={`item`}>

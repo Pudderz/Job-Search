@@ -19,31 +19,57 @@ class frontPage extends Component {
         
     }
     jobSearch = (e) =>{
-    e.preventDefault();
-    
-
+     e.preventDefault();
+        console.log(e)
     }
     render() {
         return (
             <div id="frontPage">
-                <h1>Job Search</h1>
-                <form id="form" onSubmit={this.jobSearch}>
-                    <label>Job Name:<input type="search" onChange={this.changeSearch} required placeholder="Search Jobs"/></label>  
-                    <label>Location<input id="location" type="search" onChange={this.changeLocation} required placeholder="Location"/></label>        
-                    <label>Search Website by:<input list="searchtype" value={this.props.value} name="options" id="searchBy"/>
-                    <datalist id="searchtype">
-                    <option value="Most Relevant"/>
-                    <option value="Most Recent"/>
-                    </datalist>
-                    </label>
-                    <label>Which Website:<input list="searches" value={this.props.value} name="options"/>
-                    <datalist id="searches">
-                    <option value="All"/>
-                    <option value="LinkedIn"/>
-                    <option value="indeed"/>  
-                    </datalist></label>
-                    <button type="submit">Search</button>
-                </form>
+                <nav>
+                    <a href=""></a>
+                    <a href=""></a>
+                    <a href=""></a>
+                </nav>
+                <div id="headerBackground">
+                    <h1>Job Search</h1>
+                </div>
+                <div id="formDiv">
+                    <form id="form" onSubmit={this.jobSearch}>
+                        <label>Job Name:<input type="search" onChange={this.changeSearch} required placeholder="Search Jobs"/></label>  
+                        <label>Location<input id="location" type="search" onChange={this.changeLocation} required placeholder="Location"/></label>        
+                        <label>Search Website by:
+                            <select id="searchtype" value={this.props.value} name="options" id="searchBy">
+                                <option value="Most Relevant">Most Relevant</option>
+                                <option value="Most Recent">Most Recent</option>
+                            </select>
+                        </label>
+                        <div className="sort by">
+
+                        </div>
+                        <label for="sortByData" className="whichSite">
+                            Automatically sort by date once received:
+                            <input type="checkbox" id="sortBydata" value="Data"/>
+                        </label>
+
+                        <div className="whichSite">
+                            <label for="websites">Which Website:</label>
+                            <label for="all">All:
+                                <input type="radio" name="websites" id="all" value="All" required/>
+                            </label>
+                            
+                            <label for="linkedIn">LinkedIn: 
+                            <input type="radio" name="websites" id="linkedIn" value="LinkedIn"/>
+                            </label>
+                           
+                            {/* <input type="radio" name="websites" id="reed" value="Reed"/> */}
+                            <label for="indeed">Indeed:
+                            <input type="radio" name="websites" id="indeed" value="Indeed"/>
+                            </label>
+                            
+                        </div>
+                        <button type="submit">Search</button>
+                    </form>    
+                </div>
             </div>
         )
     }

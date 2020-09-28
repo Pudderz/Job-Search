@@ -1,12 +1,20 @@
 const puppeteer = require('puppeteer');
 const express = require('express');
-const port = 3000;
+//dotenv allows us to declare environment variables in a .env file
+require("dotenv").config();
+const path = require('path');
+const port = process.env.PORT || 8080;
 let browser;
 const app = express()
 const regex = /^\d+/i;
 app.listen(port, async()=>{
-    console.log('listening on :3000')
-    browser = await puppeteer.launch({headless: false})
+    console.log(`listening on : ${port}`)
+    browser = await puppeteer.launch({
+        headless: false,
+        'args' : [
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+      ]})
 })
 
 
@@ -49,11 +57,16 @@ function scrapeJobs(res, req) {
     let indeedArray=[];
     const searchQuery = req.query.q; 
     const location = req.query.location;
-    
+   try{ 
   (async () =>{
+      try{
         let key = 0;
         //Creates a new page
-        if(!browser)browser = await puppeteer.launch({headless: false})
+        if(!browser)browser = await puppeteer.launch({headless: false,
+            'args' : [
+            '--no-sandbox',
+            '--disable-setuid-sandbox'
+          ]})
         const indeedPage = await browser.newPage();
         await indeedPage.setViewport({
             width: 1500,
@@ -110,10 +123,19 @@ function scrapeJobs(res, req) {
                 indeedPage.close()   
             } 
         }
+    }catch(e){
+        console.log('error occured in indeed search ' + e)
+    }
     })();
     (async()=>{
+        try{
         let linkedInArray = []
-        if(!browser)browser = await puppeteer.launch({headless: false})
+        if(!browser)browser = await puppeteer.launch({
+            headless: false,
+            'args' : [
+            '--no-sandbox',
+            '--disable-setuid-sandbox'
+          ]})
         const linkedInPage = await browser.newPage();
         
         linkedInPage.setRequestInterception(true);
@@ -182,11 +204,20 @@ function scrapeJobs(res, req) {
             key++;        
             if(key-15== linkedInResults.length){
                 res.write(`event: close\ndata: linkedIn\n\n`)
-                linkedInPage.close();
+                //linkedInPage.close();
                 console.log('closed')
             } 
         }
         console.log('end')
-    })();
-}
+        }catch(e){
+            console.log('error occured in LinkedIn search ' + e)
 
+        }
+    })();
+    }catch(e){
+        console.log('error occured in search ' + e)
+    }
+}
+app.get('*', function(req, res) {
+        res.sendFile(path.join(__dirname + '/public/index.html'));
+      });

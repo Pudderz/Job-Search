@@ -1,24 +1,52 @@
 #form{
-    display: block;
     position: relative;
-    margin: 1% 5%; 
     background-color: white;
     box-shadow: 1px 1px 5px 0px hsl(180, 8%, 52%);
     border-radius: 5px;
-    width: auto;
+    width: fit-content;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: auto;
+    input{
+        border: 1px solid grey;
+    }
 
 }
-
+#formDiv{
+    width: fit-content;
+    margin: auto;
+}
 #frontPage{
     display: grid;
-    height: 100vh;
+    grid-template-columns: auto;
     width: 100%;
+    max-width: 100%;
+    h1{
+        text-align: center;
+    }
 }
 
 label{
-    width: 100%;
     margin-bottom: 2vh;
+    padding: 20px;
     input{
         width: 100%;
+        padding: 10px;
+        margin: 0;
+    box-sizing: border-box;
     }
+}
+ 
+.whichSite{
+
+    input, label{
+        width: fit-content;
+        margin: 5px;
+    }
+}
+
+button[type=submit]{
+    width: fit-content;
+    margin: auto;
+    margin-top: 20px;
 }
