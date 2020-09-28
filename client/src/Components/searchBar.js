@@ -21,7 +21,7 @@ class search extends Component {
     }
     onSubmit=(e)=>{
         e.preventDefault();
-        this.props.onSearchChange(this.state.value,this.state.location)
+        this.props.onSearchChange([this.state.value,this.state.location])
     }
 
    clearSearch=()=>{

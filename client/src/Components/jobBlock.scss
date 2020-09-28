@@ -171,3 +171,26 @@ body{
         padding: 0px;
     }
 }
+nav{
+    position: fixed;
+    
+    background-color: white;
+    bottom:0%;
+    width: 100%;
+    z-index: 1;
+    margin: 0px;
+    ul{
+        display: flex;
+        justify-content: space-around;
+        list-style: none;
+    }
+    li{
+        height: 100%;
+    }
+    a{
+        text-decoration: none;
+        color: #7b8e8e;
+        font-weight: 800;
+        font-size: initial;
+    }
+}

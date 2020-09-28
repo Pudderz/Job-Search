@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import './formStyles.scss'
 
 
-class frontPage extends Component {
+class FrontPage extends Component {
     constructor(props){
         super(props)
         this.state = ({
@@ -20,8 +20,10 @@ class frontPage extends Component {
     }
     jobSearch = (e) =>{
      e.preventDefault();
-        console.log(e)
+        console.log(e.target)
+        console.log(e.target.elements)
     }
+    //Todo replace html for to jsx htmlFor
     render() {
         return (
             <div id="frontPage">
@@ -75,4 +77,4 @@ class frontPage extends Component {
     }
 }
 
-export default frontPage
+export default FrontPage

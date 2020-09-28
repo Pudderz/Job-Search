@@ -1,138 +1,155 @@
-import React from 'react';
-import Search from './searchBar';
-import JobBlock from './jobBlock';
-import LoadBar from './LoadBar';
-import './styles.scss';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
+import FrontPage from "./frontPage";
+import JobPage from "./jobPage";
 
 
 class App extends React.Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            jobResults: [],
-            searchValue:'',
-            displayLoadbar: 'none',
-            loadBarProgress: 0,
-        }
+
+  constructor(props){
+    super(props)
+    this.state = {
+        jobResults: [],
+        searchValue:'',
+        displayLoadbar: 'none',
+        loadBarProgress: 0,
     }
+  }
+
+  loadJobs= (querySearch, location)=>{
+    let linkedInLoaded = false;
+    let indeedLoaded = false;
+    const url = new URL('http://localhost:3000/stream');
+    url.searchParams.set('q', querySearch);
+    url.searchParams.set('location', location);
+    const sse = new EventSource(url);
+    const loadamount = 2;
+    this.setState({
+        displayLoadbar: 'block',
+        loadBarProgress:1,
+    })
+
+    sse.onopen = ()=> {
+        console.log("Sse connection opened");
+        this.setState({
+            jobResults : [],
+            loadBarProgress:22,
+         })
+      };
+  
+    sse.onerror = function (e) {
+        console.log("error occured "+ JSON.stringify(e));
+        sse.close();
+      };
+
+    sse.addEventListener('newData',(event)=> {
+      console.log(this.state.jobResults)
+      this.state.jobResults.push(JSON.parse(event.data))
+      this.setState({
+          jobResults : this.state.jobResults,
+          //increases the loadbar by 2 till loadBar is complete
+          loadBarProgress: this.state.loadBarProgress+ loadamount,
+      })
+    });
     
-
-
-    loadJobs= (querySearch, location)=>{
-        let linkedInLoaded = false;
-        let indeedLoaded = false;
-        const url = new URL('http://localhost:3000/stream');
-        url.searchParams.set('q', querySearch);
-        url.searchParams.set('location', location);
-        const sse = new EventSource(url);
-        const loadamount = 2;
-        this.setState({
-            displayLoadbar: 'block',
-            loadBarProgress:1,
-        })
-        sse.onopen = ()=> {
-            console.log("Sse connection opened");
-            this.setState({
-                jobResults : [],
-                loadBarProgress:22,
-             })
-          };
-      
-        sse.onerror = function (e) {
-            console.log("error occured "+ JSON.stringify(e));
+    sse.addEventListener('close',(event)=> {
+        if(event.data ==='indeed'){
+            indeedLoaded = true;
+        }else if(event.data ==='linkedIn'){
+            linkedInLoaded = true;
+        }
+        if(linkedInLoaded && indeedLoaded){
             sse.close();
-          };
-
-        sse.addEventListener('newData',(event)=> {
-            console.log("received")
-            console.log(event.data);
-            console.log(this.state.jobResults)
-            this.state.jobResults.push(JSON.parse(event.data))
-             this.setState({
-                 jobResults : this.state.jobResults,
-                 //increases the loadbar by 2 till loadBar is complete
-                 loadBarProgress: this.state.loadBarProgress+ loadamount,
-              })
-        });
-        
-        sse.addEventListener('close',(event)=> {
-            if(event.data ==='indeed'){
-                indeedLoaded = true;
-            }else if(event.data ==='linkedIn'){
-                linkedInLoaded = true;
-            }
-            if(linkedInLoaded && indeedLoaded){
-                sse.close();
-                console.log('closing connection')
-                this.setState({
-                    loadBarProgress: 100,
-                    displayLoadbar: 'none',
-                })
-            }
-        });
-    }
-
-    searchChange=(value, location)=>{
-        this.setState({
-            searchValue: value,
-        }, ()=>{this.loadJobs(value, location)})
-        
-    }
-
-    // removeSearch= e=>{
-    //     this.setState({
-    //         searchValue: this.state.searchValue.split(' ').filter((item, index)=> item!== e).join(' '),
-
-    //     },()=>{this.setState({
-    //         jobResults: this.loadJobs(this.state.searchValue),
-    //     })})
-        
-    //     console.log(this.state.searchValue)
-    // }
-    quickSortData(array, ){
-        if(array.length <= 1){
-            return array;
+            console.log('closing connection')
+            this.setState({
+                loadBarProgress: 100,
+                displayLoadbar: 'none',
+            })
         }
-        const pivot = array[array.length-1]['time'];
-        const lessThanPivot=[];
-        const moreThanPivot=[];
-        for(let i = 0; i< array.length-1; i++){
-            if(typeof(array[i]['time']) === undefined || +array[i]['time']<= pivot){
-                lessThanPivot.push(array[i])  
-            }else{
-                moreThanPivot.push(array[i])
-            }
-        }
-        return [...this.quickSortData(lessThanPivot),array[array.length-1],...this.quickSortData(moreThanPivot)]
-    }
-    sortData=()=>{
+    });
+  }
+  sortData=()=>{
         this.setState({
             jobResults: this.quickSortData(this.state.jobResults, 'time'),
         })
     }
-    tagClick= e =>{
-        this.searchChange(`${this.state.searchValue} ${e}`);
+
+
+  quickSortData(array, format ){
+    if(array.length <= 1){
+        return array;
     }
-    render(){
-        return(
-            <main>
-                
-                <div id="headerBackground">
-                </div>
-               <Search value={this.state.searchValue} onSearchChange={this.searchChange}/>
-               <LoadBar progress = {this.state.loadBarProgress} show={this.state.displayLoadbar} />
-               <button onClick={this.sortData}>Sort Data</button>
-               <ul>
-                {this.state.jobResults.map( data => {
-                    return(
-                    <JobBlock key={data.id} jobDetails={data}/>
-                    )
-                })
-                }
-                </ul>
-            </main>
-        )
+    const pivot = array[array.length-1][format];
+    const lessThanPivot=[];
+    const moreThanPivot=[];
+    for(let i = 0; i< array.length-1; i++){
+        if(typeof(array[i][format]) === undefined || +array[i][format]<= pivot){
+            lessThanPivot.push(array[i])  
+        }else{
+            moreThanPivot.push(array[i])
+        }
     }
+    return [...this.quickSortData(lessThanPivot),array[array.length-1],...this.quickSortData(moreThanPivot)]
+  }
+  
+
+  searchChange=([value, location])=>{
+    this.setState({
+        searchValue: value,
+    }, ()=>{this.loadJobs(value, location)})
+    
+  }
+  
+  render(){
+    return(
+    <Router>
+      <div>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/jobResults">Job Results</Link>
+            </li>
+            <li>
+              <Link to="/saved">My Saved Jobs</Link>
+            </li>
+          </ul>
+        </nav>
+
+        <Switch>
+          <Route path="/jobResults">
+            <JobPage 
+            searchChange={this.searchChange} 
+            searchValue={this.state.searchValue}
+            progress = {this.state.loadBarProgress}
+            displayLoadbar={this.state.displayLoadbar}
+            sortData ={this.sortData}
+            jobResults = {this.state.jobResults}
+            />
+          </Route>
+          <Route path="/saved">
+            <Users />
+          </Route>
+          <Route path="/">
+            <FrontPage />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
+  );
+  }
+    
+}
+
+function Users(){
+    return <h1>Saved Images</h1>
 }
 
 export default App
