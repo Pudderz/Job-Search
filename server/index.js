@@ -41,14 +41,25 @@ function timeValue(postedAt){
     if(regex.test(postedAt)){
         let TimeNum = postedAt.match(/^\d+/i);
         let unitOfTime = postedAt.match(/[a-z]+/i);
-        if(unitOfTime[0] === 'days' || unitOfTime[0] === 'day'){
-            time = +TimeNum[0];
-        }else if(unitOfTime[0] === 'weeks' || unitOfTime[0] === 'week'){
-            time = (+TimeNum[0])*7;
-        }else if(unitOfTime[0]==='months' || unitOfTime[0] === 'month'){
-            time = +TimeNum[0]*31;
-        } else{
-            time = 0;
+        switch(unitOfTime[0]){
+            case 'days':
+            case 'day' :  
+                time = +TimeNum[0];
+                break;
+            case 'weeks':
+            case 'week' :  
+                time = +TimeNum[0]*7;
+                break;
+            case 'months':
+            case 'month' :  
+                time = +TimeNum[0]*31;
+                break;
+            case 'hour':
+            case 'hours' :  
+                time = +TimeNum[0]/24;
+                break;
+            default:
+                time=0;   
         }
     }
     return time;

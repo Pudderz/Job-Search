@@ -73,30 +73,31 @@ class App extends React.Component{
         }
     });
   }
+  
+
+  quickSortData(array , sortBy){
+    if(array.length <= 1){
+        return array;
+    }
+    const pivot = array[array.length-1][sortBy];
+    const lessThanPivot=[];
+    const moreThanPivot=[];
+    for(let i = 0; i< array.length-1; i++){
+        if(typeof(array[i][sortBy]) === undefined || +array[i][sortBy]<= pivot){
+            lessThanPivot.push(array[i]);
+        }else{
+            moreThanPivot.push(array[i]);
+        }
+    }
+    return [...this.quickSortData(lessThanPivot, sortBy),array[array.length-1],...this.quickSortData(moreThanPivot, sortBy)];
+  }
+
   sortData=()=>{
         this.setState({
             jobResults: this.quickSortData(this.state.jobResults, 'time'),
         })
     }
 
-
-  quickSortData(array, format ){
-    if(array.length <= 1){
-        return array;
-    }
-    const pivot = array[array.length-1][format];
-    const lessThanPivot=[];
-    const moreThanPivot=[];
-    for(let i = 0; i< array.length-1; i++){
-        if(typeof(array[i][format]) === undefined || +array[i][format]<= pivot){
-            lessThanPivot.push(array[i])  
-        }else{
-            moreThanPivot.push(array[i])
-        }
-    }
-    return [...this.quickSortData(lessThanPivot),array[array.length-1],...this.quickSortData(moreThanPivot)]
-  }
-  
 
   searchChange=([value, location])=>{
     this.setState({
