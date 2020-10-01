@@ -7,18 +7,17 @@ const port = process.env.PORT || 8080;
 let browser;
 const app = express()
 const regex = /^\d+/i;
-app.listen(port, ()=>{
+app.listen(port, async ()=>{
     console.log(`listening on : ${port}`)
-    
+    browser = await puppeteer.launch({
+        headless: false,
+        'args' : [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        ]
+    });
 })
 
-
-let createBrowser = (async ()=>{browser = await puppeteer.launch({
-    headless: false,
-    'args' : [
-    '--no-sandbox',
-    '--disable-setuid-sandbox',
-]})})();
 
 app.use(express.static('public'))
 
@@ -30,7 +29,7 @@ app.get('/stream', function(req, res) {
     "Access-Control-Allow-Origin": "*",
 
   })
-  console.log('running')
+  console.log('Scraping started')
   scrapeJobs(res, req)
 })
 
@@ -40,48 +39,46 @@ app.get('/stream', function(req, res) {
 // I set the value to 0
 function timeValue(postedAt){
     let time=0;
-    if(regex.test(postedAt)){
-        let TimeNum = postedAt.match(/^\d+/i);
-        let unitOfTime = postedAt.match(/[a-z]+/i);
-        unitOfTime = unitOfTime[0].toLowercase;
-        switch(unitOfTime){
-            case 'days':
-            case 'day' :  
-                time = +TimeNum[0];
-                break;
-            case 'weeks':
-            case 'week' :  
-                time = +TimeNum[0]*7;
-                break;
-            case 'months':
-            case 'month' :  
-                time = +TimeNum[0]*31;
-                break;
-            case 'hour':
-            case 'hours':  
-                time = +TimeNum[0]/24;
-                break;
-            case 'yesterday':
-                time = 1;
-                break;
-            default:
-                time=0;   
-        }
+    let TimeNum = (regex.test(postedAt))? postedAt.match(/^\d+/i) : 0;
+    let unitOfTime = postedAt.match(/[a-z]+/i);
+    switch(unitOfTime[0]){
+        case 'days':
+        case 'day' :  
+            time = +TimeNum[0];
+            break;
+        case 'weeks':
+        case 'week' :  
+            time = +TimeNum[0]*7;
+            break;
+        case 'months':
+        case 'month' :  
+            time = +TimeNum[0]*31;
+            break;
+        case 'hour':
+        case 'hours':  
+            time = +TimeNum[0]/24;
+            break;
+        case 'Yesterday':
+            time = 1;
+            break;
+        default:
+            time=0;   
     }
     return time;
 }
 
 async function scrapeIndeed(res, url){
+    let indeedKey = 0;
+    let indeedArray=[];
+    let indeedArrayLength = 0;
+    //Creates a new page
+    if(!browser)browser = await puppeteer.launch({headless: false,
+        'args' : [
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+        ]})
+    const indeedPage = await browser.newPage();
     try{
-        let indeedKey = 0;
-        let indeedArray=[];
-        //Creates a new page
-        if(!browser)browser = await puppeteer.launch({headless: false,
-            'args' : [
-            '--no-sandbox',
-            '--disable-setuid-sandbox'
-          ]})
-        const indeedPage = await browser.newPage();
         await indeedPage.setViewport({
             width: 1500,
             height: 900,
@@ -113,12 +110,11 @@ async function scrapeIndeed(res, url){
                 // let postedAt = await info.$eval('.date', date => date.textContent);
                 let salary = await info.$('.salary');
                 if(salary){
-                    salary = await salary.evaluate(node => node.textContent)
+                    salary = await salary.evaluate(node => node.textContent);
                 }
                 
                 const time = timeValue(postedAt.value);
-                
-                let arrayLength = indeedArray.push({
+                indeedArrayLength = indeedArray.push({
                     'position': position.value,
                     'postedAt': postedAt.value,
                     'location': location.value,
@@ -130,26 +126,21 @@ async function scrapeIndeed(res, url){
                     'site': 'indeed',
                     'time': time,
                 });
-                console.log(`scraping indeed ${indeedKey}`)
-                res.write(`event: newData\ndata: ${JSON.stringify(indeedArray[arrayLength-1])} \n\n`)     
+                res.write(`event: newData\ndata: ${JSON.stringify(indeedArray[indeedArrayLength-1])} \n\n`);     
             }catch(e){
                 console.log('error occured in indeed search ' + e);
-                console.log('indeed couldnt be processed with key: ' + indeedKey);
+                console.log('indeed couldnt scrape key: ' + indeedKey);
             } finally{
                 indeedKey++;
-                if(indeedKey== data.length){
-                    res.write(`event: close\ndata: indeed\n\n`)
-                    indeedPage.close()   
-                }
             }
-            
-            
         }
     }catch(e){
         console.log('error occured in indeed search and couldnt be processed ' + e);
         res.write(`event: error\ndata: indeed\n\n`);
+    }finally{
         res.write(`event: close\ndata: indeed\n\n`);
-        indeedPage.close()   
+        await indeedPage.close();
+        console.log(`Indeed Page finished and closed, ${indeedArrayLength}/${indeedKey} scraped`); 
     }
 }
 
@@ -162,9 +153,11 @@ async function scrapeLinked(res, linkedInUrl){
           ]})
         const linkedInPage = await browser.newPage();
 
-
-    try{
+        //I set the key to 15 so the keys do not overlap with the indeedPages 
+        let linkedInKey = 19;
         let linkedInArray = [];
+        let linkedInArrayLength =0;
+    try{
         linkedInPage.setRequestInterception(true);
         linkedInPage.on('request', req=>{
             if(req.resourceType() === 'stylesheet'|| req.resourceType() === 'font'){
@@ -178,13 +171,12 @@ async function scrapeLinked(res, linkedInUrl){
         //snippets while the normal view does not
         const iPhone = puppeteer.devices['iPhone 6'];
         await linkedInPage.emulate(iPhone);
-        //I set the key to 15 so the keys do not overlap with the indeedPages 
-        let linkedInKey = 19;
+        
         
         await linkedInPage.goto(linkedInUrl, { waitUntil: 'domcontentloaded' });
         await linkedInPage.waitForSelector('.job-search-card', {timeout: 2000});
         const linkedInResults = await linkedInPage.$$('ul.jobs-search__results-list > li');
-        await linkedInPage.waitForSelector('.job-search-card', {timeout: 2000});
+        
         
         for(results of linkedInResults){
             try{
@@ -197,11 +189,9 @@ async function scrapeLinked(res, linkedInUrl){
                 const company = await div.$eval('h4 > :first-child', node=> node.textContent)
                 const location = await div.$eval('h4 > :nth-child(2)', node=> node.textContent )
                 
-            
-                console.log(company)
                 const time = timeValue(postedAt);
-        
-                const arrayLength = linkedInArray.push({
+
+                linkedInArrayLength = linkedInArray.push({
                     'position': position,
                     'postedAt': postedAt,
                     'location': location,
@@ -213,32 +203,30 @@ async function scrapeLinked(res, linkedInUrl){
                     'time': time,
                 });
         
-                console.log(`scraping LinkedIn ${linkedInKey}`);
-                res.write(`event: newData\ndata: ${JSON.stringify(linkedInArray[arrayLength-1])} \n\n`);
+                res.write(`event: newData\ndata: ${JSON.stringify(linkedInArray[linkedInArrayLength-1])} \n\n`);
             }catch(e){
                 console.log('error occured in LinkedIn search ' + e);
-                console.log('couldnt find '+ linkedInKey);
+                console.log('LinkedIn couldnt scrape key'+ linkedInKey);
             }  finally{
                linkedInKey++; 
             }    
             
         }
-            console.log('end')
         }catch(e){
             console.log('error occured in LinkedIn search ' + e);
             res.write(`event: error\ndata: linkedIn\n\n`);
-            res.write(`event: close\ndata: linkedIn\n\n`);
-            // linkedInPage.close();
         } finally{
             res.write(`event: close\ndata: linkedIn\n\n`);
-                //linkedInPage.close();
-                console.log('closed');
+            await linkedInPage.close();
+            console.log(`LinkedIn Page finished and closed, ${linkedInArrayLength}/${linkedInKey-19} scraped`);
         }
 }
 
 async function scrapeReed(res, reedUrl){
-    try{
-        let reedArray = []
+    let reedArray = []
+    //I set the key to 64 so the keys do not overlap with the other pages
+    let reedKey = 64;
+    let reedArrayLength =0;
         if(!browser)browser = await puppeteer.launch({
             headless: false,
             'args' : [
@@ -246,7 +234,7 @@ async function scrapeReed(res, reedUrl){
             '--disable-setuid-sandbox'
           ]})
         const reedPage = await browser.newPage();
-        
+    try{
         reedPage.setRequestInterception(true);
         reedPage.on('request', req=>{
             if(req.resourceType() === 'stylesheet'|| req.resourceType() === 'font'){
@@ -260,8 +248,7 @@ async function scrapeReed(res, reedUrl){
         //snippets while the normal view does not
         const iPhone = puppeteer.devices['iPhone 6'];
         await reedPage.emulate(iPhone);
-        //I set the key to 15 so the keys do not overlap with the indeedPages 
-        let reedKey = 64;
+        
         
         await reedPage.goto(reedUrl, { waitUntil: 'domcontentloaded' });
         await reedPage.waitForSelector('article.job-result', {timeout: 2000});
@@ -291,8 +278,8 @@ async function scrapeReed(res, reedUrl){
         
            
             const time = timeValue(postedAt.substring(postedAt.indexOf(' ')))
-            
-            let arrayLength = reedArray.push({
+        
+            reedArrayLength = reedArray.push({
                 'position': position,
                 'postedAt': postedAt,
                 'location': location,
@@ -303,36 +290,30 @@ async function scrapeReed(res, reedUrl){
                 'site': 'reed',
                 'time': time,
             });
-            console.log(`scraping reed ${reedKey}`)
             //console.log('reed', reedArray[arrayLength-1])
-            res.write(`event: newData\ndata: ${JSON.stringify(reedArray[arrayLength-1])} \n\n`)
-            reedKey++;        
-            if(arrayLength== reedResults.length){
-                res.write(`event: close\ndata: linkedIn\n\n`)
-                reedPage.close();
-                console.log('closed')
-            } 
+            res.write(`event: newData\ndata: ${JSON.stringify(reedArray[reedArrayLength-1])} \n\n`)
             }catch(e){
                 console.log('error occured in reed search ' + e);
-                console.log('couldnt find '+ reedKey)
+                console.log('Reed couldnt scrape key: '+ reedKey)
             }finally{
                 reedKey++; 
             }    
         }
-            console.log('end')
         }catch(e){
             console.log('error occured in reed search ' + e);
             res.write(`event: error\ndata: reed\n\n`);
-                //reedPage.close();
         } finally{
             res.write(`event: close\ndata: reed\n\n`)
-                //reedPage.close();
-                console.log('closed')
+                await reedPage.close();
+                console.log(`Reed scrape finished and closed, ${reedArrayLength}/${reedKey-64} scraped`);
         }
 }
 
 async function scrapeJobsite(res, jobSiteUrl){
     let jobSiteArray = []
+    let jobSiteArrayLength =0;
+    //I set the key to 44 so the keys do not overlap with the other pages
+        let jobsiteKey = 44;
         if(!browser)browser = await puppeteer.launch({
             headless: false,
             'args' : [
@@ -344,8 +325,7 @@ async function scrapeJobsite(res, jobSiteUrl){
         const iPhone = puppeteer.devices['iPhone 6'];
         await jobSitePage.emulate(iPhone);
 
-        //I set the key to 40 so the keys do not overlap with the indeedPages 
-        let jobsiteKey = 44;
+        
         
         await jobSitePage.goto(jobSiteUrl, { waitUntil: 'domcontentloaded' });
         await jobSitePage.waitForSelector('div.job', {timeout: 2000});
@@ -367,10 +347,11 @@ async function scrapeJobsite(res, jobSiteUrl){
                 postedAt = postedAt.trim();
                 location = location.trim();
                 company = company.trim();
-                const time = timeValue(postedAt);
+               
                 location = location.substring(0,location.lastIndexOf(' from')-1)
-                
-                const arrayLength = jobSiteArray.push({
+                if(postedAt.includes('Posted '))postedAt = postedAt.substring(postedAt.indexOf(' ')+1);
+                const time = timeValue(postedAt);
+                jobSiteArrayLength = jobSiteArray.push({
                     'position': position,
                     'postedAt': postedAt,
                     'location': location,
@@ -381,26 +362,22 @@ async function scrapeJobsite(res, jobSiteUrl){
                     'site': 'jobSite',
                     'time': time,
                 });
-                console.log(`scraping Jobsite ${jobsiteKey}`)
-                //console.log('jobSite', jobSiteArray[arrayLength-1])
-                res.write(`event: newData\ndata: ${JSON.stringify(jobSiteArray[arrayLength-1])} \n\n`);     
+
+                res.write(`event: newData\ndata: ${JSON.stringify(jobSiteArray[jobSiteArrayLength-1])} \n\n`);     
             }catch(e){
                 console.log('error occured in jobSite search ' + e);
-                console.log('couldnt find '+ jobsiteKey);
+                console.log('JobSite couldnt scrape key:'+ jobsiteKey);
             }finally{
                 jobsiteKey++;
             }      
         }
-            console.log('Jobsite ended')
-        }catch(e){
+    }catch(e){
             console.log('error occured in Jobsite search ' + e);
             res.write(`event: error\ndata: jobSite\n\n`);
-            //res.write(`event: close\ndata: jobSite\n\n`);
-            //jobSitePage.close();
-        }finally{
-            //jobSitePage.close();
-            console.log('jobsite closed')
+    }finally{
+            await jobSitePage.close();
             res.write(`event: close\ndata: jobSite\n\n`);
+            console.log(`JobSite Page finished and closed, ${jobSiteArrayLength}/${jobsiteKey-44} scraped`);
         }
 }
 
@@ -411,6 +388,8 @@ function scrapeJobs(res, req) {
     const sortBy = req.query.sortBy;
     const returnIndeed = req.query.indeed;
     const returnLinked = req.query.linked;
+    const returnReed = req.query.reed;
+    const returnJobsite = req.query.jobsite;
 
     if(returnIndeed === 'true'){ 
         const sort= (sortBy =='DD')? '&sort=date' : '';
@@ -418,27 +397,18 @@ function scrapeJobs(res, req) {
         scrapeIndeed(res, url)
     }
     if(returnLinked === 'true'){
-        let sort='';
-        if(sortBy =='DD'){
-            sort= '&sortBy=DD'
-        }
+        let sort=(sortBy =='DD')? '&sortBy=DD':'';
         const linkedInUrl = `https://www.linkedin.com/jobs/search?keywords=${searchQuery}&location=${location}${sort}`;
         scrapeLinked(res, linkedInUrl)
     }
-    if(returnLinked === 'true'){
-        let sort='';
-        if(sortBy =='DD'){
-            sort= '?Sort=2&scrolled=268'
-        }
+    if(returnJobsite === 'true'){
+        let sort=(sortBy =='DD')?'?Sort=2&scrolled=268': '';
         const jobSiteUrl = `https://www.jobsite.co.uk/jobs/${searchQuery}/in-${location}${sort}`;
         scrapeJobsite(res, jobSiteUrl)
     }
     
-    if(returnLinked === 'true'){
-        let sort='';
-        if(sortBy =='DD'){
-            sort= '&sortby=DisplayDate'
-        }
+    if(returnReed === 'true'){
+        let sort=(sortBy =='DD')?'&sortby=DisplayDate' :'';
         const reedUrl = `https://www.reed.co.uk/jobs/${searchQuery}-jobs-in-${location}?proximity=20&sortby=DisplayDate${sort}`;
         scrapeReed(res, reedUrl)
     }
