@@ -1,9 +1,14 @@
 import React, { Component } from 'react'
-
+import JobBlock from './jobBlock'
+import {db} from './indexedDB'
 export default class SavedJobsPage extends Component {
-    componentDidMount = () =>{
-
+    constructor(){
+        super()
+        this.state={
+            savedJobs: [],
+        }
     }
+    
     render() {
         if (!window.indexedDB) {
             return(
@@ -20,12 +25,17 @@ export default class SavedJobsPage extends Component {
             <div>
                 <div id="headerBackground">
                 </div>
-                <h1>Saved Images</h1>
+                <h1>Saved Jobs</h1>
                 {/* </div><Search Results> */}
-                <ol>
-
+                <ol id="saved results">
+                    {this.state.savedJobs.map(data=>(
+                        <JobBlock  key={data.id} jobDetails={data}/>
+                    ))}
+                    
                 </ol>
             </div>
         )
     }
 }
+
+
