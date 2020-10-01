@@ -1,12 +1,17 @@
 import React, { Component } from 'react'
 import './loadBar.scss'
+import { MySearchContext } from './searchBarContext'
 class LoadBar extends Component {
     
     render() { 
         return (
-            <div id="loadBar" style={{display: this.props.show}}>
-                <div style={{width:`${this.props.progress}%`}}/>
-            </div>
+            <MySearchContext.Consumer>
+                {context=>
+                    <div id="loadBar" style={{display: context.state.displayLoadbar}}>
+                        <div style={{width:`${context.state.loadBarProgress}%`}}/>
+                    </div>
+                }
+            </MySearchContext.Consumer>
         )
     }
 }

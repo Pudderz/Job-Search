@@ -1,6 +1,7 @@
 import React from 'react';
 import './jobBlock.scss';
 import Link from './link'
+import SiteLink from './siteLink';
 
 
 class JobBlock extends React.Component{
@@ -43,6 +44,8 @@ class JobBlock extends React.Component{
     shouldComponentUpdate = (nextProps)=>{
         return !(this.compare(this.props, nextProps))
     }
+
+   
     render(){
         return(
             <li className={`item`}>
@@ -59,17 +62,16 @@ class JobBlock extends React.Component{
                     </h2>
                     <div className="extraInfo">
                         <p>{this.props.jobDetails.postedAt}</p> 
-                        {/* <p>{this.props.jobDetails.contract}</p>  */}
                         <p>{this.props.jobDetails.location}</p> 
                     </div>  
                 </div>
                 <hr className="lineBreak"/>
                 <div className="tags">
                     <p>{this.props.jobDetails.summary}</p>
-                    <button className="save" onClick={console.log('save')}>Save</button>
+                    <button className="save" >Save</button>
                     <Link link={this.props.jobDetails.link} site={this.props.jobDetails.site}/>
-                    <p className="site">{this.props.jobDetails.site}</p>
-                </div>    
+                </div> 
+                <SiteLink site={this.props.jobDetails.site}/>   
             </li>
         );
     }
