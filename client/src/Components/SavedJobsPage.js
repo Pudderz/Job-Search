@@ -1,12 +1,38 @@
 import React, { Component } from 'react'
 import JobBlock from './jobBlock'
-import {db} from './indexedDB'
+
+import {get , keys , del} from 'idb-keyval'
 export default class SavedJobsPage extends Component {
     constructor(){
         super()
         this.state={
             savedJobs: [],
         }
+    }
+    componentDidMount = async() =>{
+       
+        const jobs = []
+     keys()
+        .then((keys) => {
+            for(const key of keys){
+                console.log(key);
+                get(key).then((value)=>{
+                    jobs.push([key,value])  
+                })
+                .then(()=>{
+                    this.setState({
+                        savedJobs: jobs,
+                    })
+                }) 
+            }
+        }) 
+    }
+
+    removeItem = id=>{
+        const list = this.state.savedJobs.filter(item =>item[0] !== id)
+        this.setState({
+            savedJobs: list,
+        });
     }
     
     render() {
@@ -26,10 +52,10 @@ export default class SavedJobsPage extends Component {
                 <div id="headerBackground">
                 </div>
                 <h1>Saved Jobs</h1>
-                {/* </div><Search Results> */}
+                
                 <ol id="saved results">
                     {this.state.savedJobs.map(data=>(
-                        <JobBlock  key={data.id} jobDetails={data}/>
+                        <JobBlock  key={data[0]} jobDetails={data[1]} removeCallback={e=>this.removeItem(data[0])} isSaved={true} />
                     ))}
                     
                 </ol>

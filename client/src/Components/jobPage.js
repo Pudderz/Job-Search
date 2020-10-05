@@ -21,7 +21,7 @@ class JobPage extends React.Component{
                <ul>
                 {this.props.jobResults.map(data => {
                     return(
-                    <JobBlock key={data.id} jobDetails={data}/>
+                    <JobBlock key={data.id} jobDetails={data} isSaved={false}/>
                     )
                 })
                 }

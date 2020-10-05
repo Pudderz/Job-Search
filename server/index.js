@@ -174,20 +174,20 @@ async function scrapeLinked(res, linkedInUrl){
         
         
         await linkedInPage.goto(linkedInUrl, { waitUntil: 'domcontentloaded' });
-        await linkedInPage.waitForSelector('.job-search-card', {timeout: 2000});
+        await linkedInPage.waitForSelector('.job-result-card', {timeout: 2000});
         const linkedInResults = await linkedInPage.$$('ul.jobs-search__results-list > li');
         
         
         for(results of linkedInResults){
             try{
-                const div = await results.$('div > div.base-search-card__info');
+                const div = await results.$('div.job-result-card__contents');
                 const position = await div.$eval('h3' , node=> node.textContent);
                 const summary = await div.$eval('div > p', node=> node.textContent);
                 const postedAt = await div.$eval('div > time', node=> node.textContent);
-                const moreInfo = await results.$eval('div > a', node=> node.getAttribute('href'));
+                const moreInfo = await results.$eval('a.result-card__full-card-link', node=> node.getAttribute('href'));
             
-                const company = await div.$eval('h4 > :first-child', node=> node.textContent)
-                const location = await div.$eval('h4 > :nth-child(2)', node=> node.textContent )
+                const company = await div.$eval('h4', node=> node.textContent)
+                const location = await div.$eval('div > span', node=> node.textContent )
                 
                 const time = timeValue(postedAt);
 
@@ -224,8 +224,8 @@ async function scrapeLinked(res, linkedInUrl){
 
 async function scrapeReed(res, reedUrl){
     let reedArray = []
-    //I set the key to 64 so the keys do not overlap with the other pages
-    let reedKey = 64;
+    //I set the key to 65 so the keys do not overlap with the other pages
+    let reedKey = 65;
     let reedArrayLength =0;
         if(!browser)browser = await puppeteer.launch({
             headless: false,

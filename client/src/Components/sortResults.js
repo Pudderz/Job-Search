@@ -1,4 +1,5 @@
 import React from 'react'
+import FilterResults from './filterResults'
 import { MySearchContext } from './searchBarContext'
 
 export default function sortResults() {
@@ -11,6 +12,7 @@ export default function sortResults() {
                         <option value="id" defaultValue>ID</option>
                         <option value="time">Time</option>
                     </select>
+                <FilterResults/>
                 </label>
                 <hr/>
             </>

@@ -2,7 +2,7 @@ import React from 'react';
 import './jobBlock.scss';
 import Link from './link'
 import SiteLink from './siteLink';
-
+import {set, del} from 'idb-keyval';
 
 class JobBlock extends React.Component{
 
@@ -45,7 +45,15 @@ class JobBlock extends React.Component{
         return !(this.compare(this.props, nextProps))
     }
 
-   
+    saveJob = async () =>{
+        set(`${this.props.jobDetails.company}_${this.props.jobDetails.position}`, this.props.jobDetails)
+            .then(()=> console.log('Saved'))
+            .catch((e)=>{console.log('error')})
+    }
+    removeJob = async () =>{
+        del(`${this.props.jobDetails.company}_${this.props.jobDetails.position}`)
+            .then(this.props.removeCallback)
+    }
     render(){
         return(
             <li className={`item`}>
@@ -68,7 +76,12 @@ class JobBlock extends React.Component{
                 <hr className="lineBreak"/>
                 <div className="tags">
                     <p>{this.props.jobDetails.summary}</p>
-                    <button className="save" >Save</button>
+                    {this.props.isSaved === false &&
+                        <button className="save" onClick={this.saveJob}>Save</button>
+                    }
+                    {this.props.isSaved === true &&
+                         <button className="save" onClick={this.removeJob}>Remove</button>
+                    }
                     <Link link={this.props.jobDetails.link} site={this.props.jobDetails.site}/>
                 </div> 
                 <SiteLink site={this.props.jobDetails.site}/>   
