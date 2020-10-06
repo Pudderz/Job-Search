@@ -12,7 +12,7 @@ export default function sortResults() {
                         <option value="id" defaultValue>ID</option>
                         <option value="time">Time</option>
                     </select>
-                <FilterResults/>
+                <FilterResults jobResults={context.state.initialResults} changeJobs={context.onFilter}/>
                 </label>
                 <hr/>
             </>

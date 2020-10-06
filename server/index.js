@@ -115,13 +115,13 @@ async function scrapeIndeed(res, url){
                 
                 const time = timeValue(postedAt.value);
                 indeedArrayLength = indeedArray.push({
-                    'position': position.value,
+                    'position': position.value[0],
                     'postedAt': postedAt.value,
                     'location': location.value,
                     'company': company.value,
                     'salary': salary,
                     'summary': summary.value,
-                    'link': moreInfo.value,
+                    'link': moreInfo.value[0],
                     'id': indeedKey,
                     'site': 'indeed',
                     'time': time,

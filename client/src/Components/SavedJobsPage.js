@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
 import JobBlock from './jobBlock'
-
-import {get , keys , del} from 'idb-keyval'
+import GoToTopBot from './goToTopBot'
+import {get , keys } from 'idb-keyval'
+import FilterResults from './filterResults'
 export default class SavedJobsPage extends Component {
     constructor(){
         super()
         this.state={
             savedJobs: [],
+            initialResults: [],
         }
     }
     componentDidMount = async() =>{
@@ -17,11 +19,13 @@ export default class SavedJobsPage extends Component {
             for(const key of keys){
                 console.log(key);
                 get(key).then((value)=>{
-                    jobs.push([key,value])  
+                    value.id=key
+                    jobs.push(value)  
                 })
                 .then(()=>{
                     this.setState({
                         savedJobs: jobs,
+                        initialResults: jobs,
                     })
                 }) 
             }
@@ -29,12 +33,16 @@ export default class SavedJobsPage extends Component {
     }
 
     removeItem = id=>{
-        const list = this.state.savedJobs.filter(item =>item[0] !== id)
+        const list = this.state.savedJobs.filter(item =>item.id !== id)
         this.setState({
             savedJobs: list,
         });
     }
-    
+    onFilter = (value)=>{
+        this.setState({
+            savedJobs: value
+        })
+    }
     render() {
         if (!window.indexedDB) {
             return(
@@ -52,14 +60,16 @@ export default class SavedJobsPage extends Component {
                 <div id="headerBackground">
                 </div>
                 <h1>Saved Jobs</h1>
-                
+                 <FilterResults jobResults={this.state.initialResults} changeJobs={this.onFilter}/>
                 <ol id="saved results">
                     {this.state.savedJobs.map(data=>(
-                        <JobBlock  key={data[0]} jobDetails={data[1]} removeCallback={e=>this.removeItem(data[0])} isSaved={true} />
+                        <JobBlock  key={data.id} jobDetails={data} removeCallback={e=>this.removeItem(data.id)} isSaved={true} />
                     ))}
                     
                 </ol>
+                <GoToTopBot/>
             </div>
+
         )
     }
 }
