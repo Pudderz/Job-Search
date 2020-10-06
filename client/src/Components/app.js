@@ -15,6 +15,7 @@ class App extends React.Component{
   constructor(props){
     super(props)
     this.state = {
+        initialResults:[],
         jobResults: [],
         searchValue:'',
         locationValue:'',
@@ -25,6 +26,7 @@ class App extends React.Component{
         loadReed: true,
         loadJobSite: true,
         sortBy: 'id',
+        info: '',
     }
   }
 
@@ -49,35 +51,59 @@ class App extends React.Component{
     }
     const sse = new EventSource(url);
    let stateArray = []; 
+   let loaded = false;
     this.setState({
         displayLoadbar: 'block',
         loadBarProgress:1,
+        info: 'sending...'
     })
+    setTimeout(()=>{
+      if(loaded === false){
+        console.log('error loading')
+        this.setState({
+          info:'Connection Error, Closing connection'
+        })
+        sse.removeEventListener('error', event => {
+          whatSitesToLoad[`${event.data}`]=true;
+          console.log(`server could not load ${event.data}`)
+        })
+        sse.removeEventListener('newData', e=> newData(e));
+        sse.removeEventListener('close', e=> closeData(e))
+        sse.close()
+        
+      }
+    },10000)
 
     sse.onopen = ()=> {
         console.log("Sse connection opened");
+        loaded=true;
         this.setState({
             jobResults : [],
             loadBarProgress:22,
+            info: 'Connection established'
          })
       };
   
     sse.onerror = function (e) {
         console.log("error occured "+ e.eventPhase);
+        this.setState({info: 'Error occured while scrapping'})
       };
     const newData = event=>{
       stateArray.push(JSON.parse(event.data))
       this.setState({
           jobResults : stateArray,
+          initialResults: stateArray,
           //increases the loadbar by 2 till loadBar is complete
-          loadBarProgress: this.state.loadBarProgress+ 2,
+          loadBarProgress: this.state.loadBarProgress+ 1,
       })
     }
 
     const closeData =event=>{
       whatSitesToLoad[`${event.data}`]= true;   
             console.log(`${event.data} finished`);
-
+            this.setState({
+              info: `${event.data} complete`
+            })
             //tests to see if all the required websites have been loaded
         if(whatSitesToLoad['linkedIn'] && 
             whatSitesToLoad['indeed'] &&
@@ -89,6 +115,7 @@ class App extends React.Component{
           this.setState({
               loadBarProgress: 100,
               displayLoadbar: 'none',
+              info: 'Scraping complete'
           })
           this.quickSortData(this.state.jobResults, this.state.sortBy)
         }
@@ -127,7 +154,11 @@ class App extends React.Component{
     }
     return [...this.quickSortData(lessThanPivot, sortBy),array[array.length-1],...this.quickSortData(moreThanPivot, sortBy)];
   }
-
+  filterResults =(value)=>{
+    this.setState({
+      jobResults: value
+    },()=>this.sortData())
+  }
 
   sortData=()=>{
         this.setState({
@@ -163,6 +194,7 @@ class App extends React.Component{
             locationValue:'', 
           })
           },
+          onFilter: (value)=>this.filterResults(value),
           onSubmit: e=> {
             e.preventDefault();
             this.loadJobs();
