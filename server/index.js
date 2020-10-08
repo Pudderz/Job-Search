@@ -380,6 +380,245 @@ async function scrapeJobsite(res, jobSiteUrl){
             console.log(`JobSite Page finished and closed, ${jobSiteArrayLength}/${jobsiteKey-44} scraped`);
         }
 }
+async function scraper(res, site, url, callback, smallSizeQuestion, showCSS){
+let indeedKey = 0;
+    let indeedArrayLength = 0;
+    //Creates a new page
+    if(!browser)browser = await puppeteer.launch({headless: false,
+        'args' : [
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+        ]})
+    const page = await browser.newPage();
+    try{
+        if(smallSizeQuestion){
+             //I view the page in a phone viewport as only the phone view provides brief
+        //snippets while the normal view does not
+        const iPhone = puppeteer.devices['iPhone 6'];
+        await page.emulate(iPhone);
+        }else{
+            await page.setViewport({
+            width: 1500,
+            height: 900,
+            deviceScaleFactor: 1,
+          });
+        }
+        if(!showCSS){
+            //stops page loading css
+            page.setRequestInterception(true);
+            page.on('request', req=>{
+                if(req.resourceType() === 'stylesheet'|| req.resourceType() === 'font'){
+                    req.abort();
+                }else{
+                    req.continue();
+                }
+            })
+        }
+        
+        await page.goto(url);
+        try{
+            await callback(res, page);
+        }catch(e){
+            console.log('error is bubbling')
+        }
+        
+    }catch(e){
+        console.log(`error occured in ${site} search and couldnt be processed  ${e}`);
+        res.write(`event: error\ndata: ${site}\n\n`);
+    }finally{
+        res.write(`event: close\ndata: ${site}\n\n`);
+        await page.close();
+        console.log(`${site} Page finished and closed,  scraped`);
+        // ${indeedArrayLength}/${indeedKey} 
+    }
+}
+
+async function indeed(res, indeedPage){
+    let indeedKey=0;
+    await indeedPage.waitForSelector('div.jobsearch-SerpJobCard', {timeout: 1000});
+        const data = await indeedPage.$$('div.jobsearch-SerpJobCard');
+        for(info of data){
+            try{
+                let [postedAt, company, location, summary, moreInfo, position] = await Promise.allSettled([
+                    info.$eval('.date', date => date.textContent),
+                    info.$eval('.company', date => date.textContent),
+                    info.$eval('.location', date => date.textContent),
+                    info.$eval('.summary', date => date.textContent),
+                    info.$$eval('h2>a', node => node.map((e) => e.getAttribute('href'))),
+                    info.$$eval('h2>a', node => node.map((e) => e.getAttribute('title'))),
+                ])
+                // let postedAt = await info.$eval('.date', date => date.textContent);
+                let salary = await info.$('.salary');
+                if(salary){
+                    salary = await salary.evaluate(node => node.textContent);
+                }
+                
+                const time = timeValue(postedAt.value);
+                const information =({
+                    'position': position.value[0],
+                    'postedAt': postedAt.value,
+                    'location': location.value,
+                    'company': company.value,
+                    'salary': salary,
+                    'summary': summary.value,
+                    'link': moreInfo.value[0],
+                    'id': indeedKey,
+                    'site': 'indeed',
+                    'time': time,
+                });
+                res.write(`event: newData\ndata: ${JSON.stringify(information)} \n\n`);     
+            }catch(e){
+                console.log('error occured in indeed search ' + e);
+                console.log('indeed couldnt scrape key: ' + indeedKey);
+            } finally{
+                indeedKey++;
+            }
+        }
+}
+async function reed(res, reedPage){
+    let reedkey = 65;
+    await reedPage.waitForSelector('article.job-result', {timeout: 2000});
+        const reedResults = await reedPage.$$('article.job-result');
+        // await reedPage.waitForSelector('div.base-search-card__info', {timeout: 2000});
+        
+        for(results of reedResults){
+            try{
+            // let company,location,position,summary,postedAt,moreInfo  =
+            const details = await results.$('div.details');
+            let location = await details.$eval('div.metadata > ul:nth-child(2) > li', node=> node.textContent);
+            let summary = await details.$eval('div.description > p', node=> node.textContent);
+            const header = await details.$('header');
+            let position = await header.$eval('h3', node=> node.textContent);
+            
+            let postedAt = await header.$eval('div.posted-by', node=> node.textContent);
+            let company = await header.$eval('div.posted-by > a', node=> node.textContent);
+            let moreInfo = await header.$eval('h3 > a', node=> node.getAttribute('href'));
+            
+            location = location.trim();
+            position = position.trim();
+
+            //Removes the words after 'by...' and the word 'posted ' from the postedAt string
+            postedAt = postedAt.trim();
+            postedAt = postedAt.substring(postedAt.indexOf(' '), postedAt.lastIndexOf(`by ${company}`));
+
+        
+           
+            const time = timeValue(postedAt.substring(postedAt.indexOf(' ')))
+        
+            reedArrayLength = reedArray.push({
+                'position': position,
+                'postedAt': postedAt,
+                'location': location,
+                'company': company,
+                'summary': summary,
+                'link': moreInfo,
+                'id': reedKey,
+                'site': 'reed',
+                'time': time,
+            });
+            //console.log('reed', reedArray[arrayLength-1])
+            res.write(`event: newData\ndata: ${JSON.stringify(reedArray[reedArrayLength-1])} \n\n`)
+            }catch(e){
+                console.log('error occured in reed search ' + e);
+                console.log('Reed couldnt scrape key: '+ reedKey)
+            }finally{
+                reedKey++; 
+            }    
+        }
+}
+async function jobsite(res, jobSitePage){
+    let jobSiteKey=44;
+    await jobSitePage.waitForSelector('div.job', {timeout: 2000});
+    const jobSiteResults = await jobSitePage.$$('div.job.twinpeaks');
+    
+    for(results of jobSiteResults){
+        try{
+            const divs = await results.$('div > div');
+            const jobTitle = await divs.$('div > div > div.job-title > a');
+            const detailsDiv = await divs.$(' div.detail-body');
+            let company = await detailsDiv.$eval('div.row > div > ul.detail-list > li.company', node=> node.textContent);
+            let location = await detailsDiv.$eval('#headerListContainer > ul > li.location', node=> node.textContent);
+            let summary= await detailsDiv.$eval('div.row.detail-footer > div > div > p.job-intro', node=> node.textContent);
+            let postedAt = await detailsDiv.$eval('div:nth-child(1) > div > ul > li.date-posted', node=> node.textContent);
+            
+            let position = await jobTitle.$eval('h2', node=> node.textContent);
+            let moreInfo = await jobSitePage.evaluate(node=> node.getAttribute('href'), jobTitle);
+            
+            postedAt = postedAt.trim();
+            location = location.trim();
+            company = company.trim();
+           
+            location = location.substring(0,location.lastIndexOf(' from')-1)
+            if(postedAt.includes('Posted '))postedAt = postedAt.substring(postedAt.indexOf(' ')+1);
+            const time = timeValue(postedAt);
+            jobSiteArrayLength = jobSiteArray.push({
+                'position': position,
+                'postedAt': postedAt,
+                'location': location,
+                'company': company,
+                'summary': summary,
+                'link': moreInfo,
+                'id': jobSiteKey,
+                'site': 'jobSite',
+                'time': time,
+            });
+
+            res.write(`event: newData\ndata: ${JSON.stringify(jobSiteArray[jobSiteArrayLength-1])} \n\n`);     
+        }catch(e){
+            console.log('error occured in jobSite search ' + e);
+            console.log('JobSite couldnt scrape key:'+ jobSiteKey);
+        }finally{
+            jobSiteKey++;
+        }      
+    }
+}
+
+async function linkedIn(res, linkedInPage){
+    try{
+        
+        await linkedInPage.waitForSelector('.job-result-card', {timeout: 2000});
+        
+    }catch(e){
+        console.log('This is the error');
+    }
+        let linkedInKey=19;
+        const linkedInResults = await linkedInPage.$$('ul.jobs-search__results-list > li');
+        
+        for(results of linkedInResults){
+            try{
+                const div = await results.$('div.job-result-card__contents');
+                const position = await div.$eval('h3' , node=> node.textContent);
+                const summary = await div.$eval('div > p', node=> node.textContent);
+                const postedAt = await div.$eval('div > time', node=> node.textContent);
+                const moreInfo = await results.$eval('a.result-card__full-card-link', node=> node.getAttribute('href'));
+            
+                const company = await div.$eval('h4', node=> node.textContent)
+                const location = await div.$eval('div > span', node=> node.textContent )
+                
+                const time = timeValue(postedAt);
+
+                const information= {
+                    'position': position,
+                    'postedAt': postedAt,
+                    'location': location,
+                    'company': company,
+                    'summary': summary,
+                    'link': moreInfo,
+                    'id': linkedInKey,
+                    'site': 'linkedIn',
+                    'time': time,
+                };
+        
+                res.write(`event: newData\ndata: ${JSON.stringify(information)} \n\n`);
+            }catch(e){
+                console.log('error occured in LinkedIn search ' + e);
+                console.log('LinkedIn couldnt scrape key'+ linkedInKey);
+            }  finally{
+               linkedInKey++; 
+            }    
+            
+        }
+}
 
 function scrapeJobs(res, req) {
     
@@ -399,14 +638,14 @@ function scrapeJobs(res, req) {
         const salary=(req.query.inSal !== 'none')? `+£${req.query.inSal}`: '';
         const url = `https://www.indeed.co.uk/jobs?q=${searchQuery}${salary}&l=${location}${sort}${datePosted}${radius}${jobType}`;
         console.log(url);
-        scrapeIndeed(res, url);
+        scraper(res,'indeed', url, indeed, false, false);
     }
     if(returnLinked === 'true'){
         let sort=(sortBy =='DD')? '&sortBy=DD':'';
         const jobType=(req.query.lJob !== 'none')? `&f_JT=${req.query.lJob}`: '';
         const datePosted=(req.query.lDate !== 'none')? `&f_TP=${req.query.lDate}`: '';
         const linkedInUrl = `https://www.linkedin.com/jobs/search?keywords=${searchQuery}&location=${location}${sort}${jobType}${datePosted}`;
-        scrapeLinked(res, linkedInUrl);
+        scraper(res,'linkedIn', linkedInUrl, linkedIn, true, false);
     }
     if(returnJobsite === 'true'){
         let sort = (sortBy =='DD')?'?Sort=2&scrolled=268': '';
