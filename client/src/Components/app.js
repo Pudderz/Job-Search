@@ -14,6 +14,7 @@ class App extends React.Component{
 
   constructor(props){
     super(props)
+    this.isDownloading = false;
     this.state = {
         initialResults:[],
         jobResults: [],
@@ -53,8 +54,44 @@ class App extends React.Component{
         }
     }
   }
+  compare=(previousProps, newProps)=>{
+    //test if same object
+    if(previousProps === newProps){
+        return true
+    }
+    //tests if bother props objs are not null and are objects
+    if (typeof previousProps !== 'object' || previousProps === null ||
+    typeof newProps !== 'object' || newProps === null) {
+    return false;
+    }
 
-  loadJobs= () =>{
+    //Creates array of keys from each props so we can test if they are the same length
+    //and has the same values in the for loop
+
+    const oldPropsKeys = Object.keys(previousProps);
+    const newPropsKeys = Object.keys(newProps);
+
+    if (oldPropsKeys.length !== newPropsKeys.length) {
+        return false;
+    }
+    
+    const newPropsHasOwnProperty = hasOwnProperty.bind(newProps);
+    for (var i = 0; i < oldPropsKeys.length; i++) {
+        if (!newPropsHasOwnProperty(oldPropsKeys[i]) || previousProps[oldPropsKeys[i]] !== newProps[oldPropsKeys[i]]) {
+        return false;
+        }
+    }
+    return true;
+}
+
+
+shouldComponentUpdate = (nextProps, nextState)=>{
+    if(this.isDownloading)return true
+    return !(this.compare(this.props, nextProps))  || !(this.compare(this.state, nextState))
+}
+
+
+loadJobs= () =>{
     let whatSitesToLoad= {
       'linkedIn': !this.state.loadLinkedIn,
       'reed': !this.state.loadReed,
@@ -91,6 +128,7 @@ class App extends React.Component{
       const sse = new EventSource(url);
       let stateArray = []; 
       let loaded = false;
+      this.isDownloading = true;
       this.setState({
         displayLoadbar: 'block',
         loadBarProgress:1,
@@ -121,6 +159,8 @@ class App extends React.Component{
             jobResults : [],
             loadBarProgress:22,
             info: 'Connection established'
+         }, ()=>{
+           this.isDownloading=false;
          })
       };
   
@@ -144,12 +184,13 @@ class App extends React.Component{
             this.setState({
               info: `${event.data} complete`
             })
+            console.log(whatSitesToLoad);
             //tests to see if all the required websites have been loaded
         if(whatSitesToLoad['linkedIn'] && 
             whatSitesToLoad['indeed'] &&
             whatSitesToLoad['reed'] &&
             whatSitesToLoad['jobSite']){
-          
+              
           console.log('closing connection');
           sse.close();
           this.setState({
@@ -228,10 +269,7 @@ class App extends React.Component{
         <nav>
           <ul>
             <li>
-              <Link to="/">Advanced</Link>
-            </li>
-            <li>
-              <Link to="/job">Job Results</Link>
+              <Link to="/">Job Results</Link>
             </li>
             <li>
               <Link to="/saved">Saved Jobs</Link>
@@ -250,6 +288,7 @@ class App extends React.Component{
           })
           },
           onFilter: (value)=>this.filterResults(value),
+          changeExtraParametersInfo: value=>this.changeExtraParametersInfo(value),
           onSubmit: e=> {
             e.preventDefault();
             this.loadJobs();
@@ -266,16 +305,14 @@ class App extends React.Component{
           loadReed: value =>this.setState({loadReed: value.target.checked}),
         }}>
           <Switch>
-            <Route path="/job">
-              <JobPage jobResults = {this.state.jobResults}/>
-            </Route>
+
+            
             <Route path="/saved">
               <SavedJobsPage />
             </Route>
             <Route path="/">
-              <FormPage changeExtraParametersInfo={this.changeExtraParametersInfo}/>
+              <JobPage jobResults = {this.state.jobResults}/>
             </Route>
-            
           </Switch>
         </MySearchContext.Provider>
       </div>

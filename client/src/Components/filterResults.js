@@ -42,12 +42,19 @@ export default function FilterResults(props) {
     }
 
     return (
-        <>
+        <>  <label>Filter Results by:
             <input type="text" onChange={filter} style={{'backgroundColor': 'white', 'width': 'auto'}}/>
-            <input type="checkBox" onChange={changeFilter} style={{'backgroundColor': 'white', 'width': 'auto'}} value="indeed" defaultChecked/>
-            <input type="checkBox" onChange={changeFilter} style={{'backgroundColor': 'white', 'width': 'auto'}} value="linkedIn" defaultChecked/>
-            <input type="checkBox" onChange={changeFilter} style={{'backgroundColor': 'white', 'width': 'auto'}} value="jobSite" defaultChecked/>
-            <input type="checkBox" onChange={changeFilter} style={{'backgroundColor': 'white', 'width': 'auto'}} value="reed" defaultChecked/>
+        </label>
+            <label>indeed:
+                <input type="checkBox" onChange={changeFilter} style={{'backgroundColor': 'white', 'width': 'auto'}} value="indeed" defaultChecked/>
+            </label>
+            <label>linkedIn:<input type="checkBox" onChange={changeFilter} style={{'backgroundColor': 'white', 'width': 'auto'}} value="linkedIn" defaultChecked/></label>
+            <label>JobSite:<input type="checkBox" onChange={changeFilter} style={{'backgroundColor': 'white', 'width': 'auto'}} value="jobSite" defaultChecked/></label>
+            <label>Reed:<input type="checkBox" onChange={changeFilter} style={{'backgroundColor': 'white', 'width': 'auto'}} value="reed" defaultChecked/></label>
+            
+            
+            
+            
         </>
     )
 

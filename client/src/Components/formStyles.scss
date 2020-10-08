@@ -3,10 +3,12 @@
     background-color: white;
     box-shadow: 1px 1px 5px 0px hsl(180, 8%, 52%);
     border-radius: 5px;
-    width: fit-content;
+    //width: fit-content;
     padding: 20px;
     display: grid;
     grid-template-columns: auto;
+    box-sizing: border-box;
+    
     input{
         border: 1px solid grey;
     }
@@ -14,7 +16,7 @@
 }
 #formDiv{
     width: fit-content;
-    margin: auto;
+    margin: 10px;
 }
 #frontPage{
     display: grid;
@@ -27,8 +29,8 @@
 }
 
 label{
-    margin-bottom: 2vh;
-    padding: 20px;
+    //margin-bottom: 2vh;
+    //padding: 20px;
     input{
         width: 100%;
         padding: 10px;
@@ -76,4 +78,19 @@ label{
 }
 .card select{
     width: 100px;
+}
+
+#frontPage{
+    max-width: 20%;
+    display: inline-grid;
+    height: max-content;
+    position: sticky;
+   
+
+}
+
+main ul{
+    display: inline-grid;
+    width: 80%;
+    margin-left: 0;
 }

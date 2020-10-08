@@ -5,7 +5,7 @@ import LoadBar from './LoadBar';
 import './styles.scss';
 import SortResults from './sortResults'
 import GoToTopBot from './goToTopBot';
-
+import FormPage from './formPage'
 class JobPage extends React.Component{
     
     render(){
@@ -18,7 +18,7 @@ class JobPage extends React.Component{
                 <Search/>    
                 <LoadBar/>
                 <SortResults/>
-               
+                <FormPage />
                <ul>
                 {this.props.jobResults.length >= 0 &&
                 this.props.jobResults.map(data => {

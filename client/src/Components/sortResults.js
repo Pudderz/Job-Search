@@ -6,7 +6,8 @@ export default function sortResults() {
     return (
         <MySearchContext.Consumer>
             {context=>
-            <>
+            <>  
+                <button>Advance search options</button>
                 <label id="sortBy" htmlFor="searchtype">Sort by:
                     <select value={context.state.sortBy} name="options" id="searchBy" onChange={context.sortBy}>
                         <option value="id" defaultValue>ID</option>

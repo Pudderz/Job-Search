@@ -19,12 +19,13 @@ class FormPage extends Component {
             <MySearchContext.Consumer>
                 {context=>
                 <div id="frontPage">
-                    
-                    <div id="headerBackground">
+                    {/* <div id="headerBackground">
                         <h1>Job Search</h1>
-                    </div>
+                    </div> */}
                     <div id="formDiv">
+                        
                         <form id="form" onSubmit={context.onSubmit}>
+                            <h3>Advance search options</h3>
                             <label>Job Name:
                                 <input type="search" onChange={context.changeSearchValue} value={context.state.searchValue} required placeholder="Search Jobs"/></label>  
                             <label htmlFor="location">Location:
@@ -203,7 +204,7 @@ class FormPage extends Component {
 
 
 
-                            <button type="submit" id="formSubmit" >Search</button>
+                            <button type="submit" id="formSubmit" >reset</button>
                         </form>    
                     </div>
                     <LoadBar/>
