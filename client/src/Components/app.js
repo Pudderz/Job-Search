@@ -27,6 +27,30 @@ class App extends React.Component{
         loadJobSite: true,
         sortBy: 'id',
         info: '',
+        'extraParametersInfo': {
+          linkedin: {
+            datePosted: 'none',
+            jobType: 'none',
+          },
+          'indeed':{
+            'datePosted': 'none',
+            jobType: 'none',
+            radius: 'none',
+            salary: 'none',
+          },
+          reed:{
+            datePosted: 'none',
+            jobType: 'none',
+            radius: 'none',
+            salary: 'none',
+          },
+          jobsite:{
+            datePosted: 'none',
+            jobType: 'none',
+            radius: 'none',
+            salary: 'none',
+          }
+        }
     }
   }
 
@@ -49,19 +73,35 @@ class App extends React.Component{
     if(this.state.sortBy !== 'id'){
       url.searchParams.set('sortby', this.state.sortBy);
     }
-    const sse = new EventSource(url);
-   let stateArray = []; 
-   let loaded = false;
-    this.setState({
+      url.searchParams.set('lDate', this.state.extraParametersInfo.linkedin.datePosted);
+      url.searchParams.set('lJob', this.state.extraParametersInfo.linkedin.jobType);
+      url.searchParams.set('inDate', this.state.extraParametersInfo.indeed.datePosted);
+      url.searchParams.set('inJob', this.state.extraParametersInfo.indeed.jobType);
+      url.searchParams.set('inRad', this.state.extraParametersInfo.indeed.radius);
+      url.searchParams.set('inSal', this.state.extraParametersInfo.indeed.salary);
+      url.searchParams.set('jDate', this.state.extraParametersInfo.jobsite.datePosted);
+      url.searchParams.set('jJob', this.state.extraParametersInfo.jobsite.jobType);
+      url.searchParams.set('jRad', this.state.extraParametersInfo.jobsite.radius);
+      url.searchParams.set('jSal', this.state.extraParametersInfo.jobsite.salary);
+      url.searchParams.set('rDate', this.state.extraParametersInfo.reed.datePosted);
+      url.searchParams.set('rJob', this.state.extraParametersInfo.reed.jobType);
+      url.searchParams.set('rRad', this.state.extraParametersInfo.reed.radius);
+      url.searchParams.set('rSal', this.state.extraParametersInfo.reed.salary);
+      
+      const sse = new EventSource(url);
+      let stateArray = []; 
+      let loaded = false;
+      this.setState({
         displayLoadbar: 'block',
         loadBarProgress:1,
         info: 'sending...'
-    })
-    setTimeout(()=>{
+      })
+      setTimeout(()=>{
       if(loaded === false){
         console.log('error loading')
         this.setState({
-          info:'Connection Error, Closing connection'
+          info:'Connection Error, Closing connection',
+          displayLoadbar: 'none',
         })
         sse.removeEventListener('error', event => {
           whatSitesToLoad[`${event.data}`]=true;
@@ -84,7 +124,7 @@ class App extends React.Component{
          })
       };
   
-    sse.onerror = function (e) {
+    sse.onerror = (e)=> {
         console.log("error occured "+ e.eventPhase);
         this.setState({info: 'Error occured while scrapping'})
       };
@@ -165,7 +205,22 @@ class App extends React.Component{
             jobResults: this.quickSortData(this.state.jobResults, this.state.sortBy),
         })
     }
-
+    changeExtraParametersInfo=(site, parameter, value)=>{
+        this.setState({
+          extraParametersInfo:{
+            ...this.state.extraParametersInfo,
+            [site]:{
+              ...this.state.extraParametersInfo[site],
+              [parameter]: value,
+            }
+          },
+        },()=>{
+          console.log(this.state)
+        console.log(this.state.extraParametersInfo[site])
+        })
+        
+        
+    }
   render(){
     return(
     <Router>
@@ -215,10 +270,10 @@ class App extends React.Component{
               <JobPage jobResults = {this.state.jobResults}/>
             </Route>
             <Route path="/saved">
-              <SavedJobsPage/>
+              <SavedJobsPage />
             </Route>
             <Route path="/">
-              <FormPage/>
+              <FormPage changeExtraParametersInfo={this.changeExtraParametersInfo}/>
             </Route>
             
           </Switch>

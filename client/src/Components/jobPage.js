@@ -9,6 +9,7 @@ import GoToTopBot from './goToTopBot';
 class JobPage extends React.Component{
     
     render(){
+        console.log(this.props.jobResults);
         return(
             <main> 
                 <div id="headerBackground">
@@ -19,11 +20,17 @@ class JobPage extends React.Component{
                 <SortResults/>
                
                <ul>
-                {this.props.jobResults.map(data => {
+                {this.props.jobResults.length >= 0 &&
+                this.props.jobResults.map(data => {
                     return(
                     <JobBlock key={data.id} jobDetails={data} isSaved={false}/>
                     )
                 })
+                }
+                {this.props.jobResults.length === 0 &&
+                <div>
+                    <p>There's nothing here, try searching for somthing</p>
+                </div>
                 }
                 </ul>
                 <GoToTopBot/>

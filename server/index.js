@@ -304,7 +304,7 @@ async function scrapeReed(res, reedUrl){
             res.write(`event: error\ndata: reed\n\n`);
         } finally{
             res.write(`event: close\ndata: reed\n\n`)
-                await reedPage.close();
+               await reedPage.close();
                 console.log(`Reed scrape finished and closed, ${reedArrayLength}/${reedKey-64} scraped`);
         }
 }
@@ -393,23 +393,38 @@ function scrapeJobs(res, req) {
 
     if(returnIndeed === 'true'){ 
         const sort= (sortBy =='DD')? '&sort=date' : '';
-        const url = `https://www.indeed.co.uk/jobs?q=${searchQuery}&l=${location}${sort}`;
-        scrapeIndeed(res, url)
+        const jobType=(req.query.inJob !== 'none')? `&jt=${req.query.inJob}`: '';
+        const datePosted=(req.query.inDate !== 'none')? `&fromage=${req.query.inDate}`: '';
+        const radius=(req.query.inRad !== 'none')? `&radius=${req.query.inRad}`: '';
+        const salary=(req.query.inSal !== 'none')? `+£${req.query.inSal}`: '';
+        const url = `https://www.indeed.co.uk/jobs?q=${searchQuery}${salary}&l=${location}${sort}${datePosted}${radius}${jobType}`;
+        console.log(url);
+        scrapeIndeed(res, url);
     }
     if(returnLinked === 'true'){
         let sort=(sortBy =='DD')? '&sortBy=DD':'';
-        const linkedInUrl = `https://www.linkedin.com/jobs/search?keywords=${searchQuery}&location=${location}${sort}`;
-        scrapeLinked(res, linkedInUrl)
+        const jobType=(req.query.lJob !== 'none')? `&f_JT=${req.query.lJob}`: '';
+        const datePosted=(req.query.lDate !== 'none')? `&f_TP=${req.query.lDate}`: '';
+        const linkedInUrl = `https://www.linkedin.com/jobs/search?keywords=${searchQuery}&location=${location}${sort}${jobType}${datePosted}`;
+        scrapeLinked(res, linkedInUrl);
     }
     if(returnJobsite === 'true'){
-        let sort=(sortBy =='DD')?'?Sort=2&scrolled=268': '';
-        const jobSiteUrl = `https://www.jobsite.co.uk/jobs/${searchQuery}/in-${location}${sort}`;
-        scrapeJobsite(res, jobSiteUrl)
+        let sort = (sortBy =='DD')?'?Sort=2&scrolled=268': '';
+        const jobType = (req.query.jJob !== 'none')? `${req.query.jJob}/` : '';
+        const datePosted = (req.query.jDate !== 'none')? `&postedwithin=${req.query.jDate}` : '';
+        const radius = (req.query.jRad !== 'none')? `&radius=${req.query.jRad}` : '';
+        const salary = (req.query.jSal !== 'none')? `&salary=${req.query.jSal}&salarytypeid=1` : '';
+        const jobSiteUrl = `https://www.jobsite.co.uk/jobs/${jobType}${searchQuery}/in-${location}?${sort}${datePosted}${salary}${radius}`;
+        scrapeJobsite(res, jobSiteUrl);
     }
     
     if(returnReed === 'true'){
         let sort=(sortBy =='DD')?'&sortby=DisplayDate' :'';
-        const reedUrl = `https://www.reed.co.uk/jobs/${searchQuery}-jobs-in-${location}?proximity=20&sortby=DisplayDate${sort}`;
+        const jobType=(req.query.rJob !== 'none')? `&${req.query.rJob}=true`: '';
+        const datePosted=(req.query.rDate !== 'none')? `&datecreatedoffset=${req.query.rDate}`: '';
+        const radius=(req.query.rRad !== 'none')? `&proximity=${req.query.rRad}`: '';
+        const salary=(req.query.rSal !== 'none')? `salaryfrom=${req.query.rSal}`: '';
+        const reedUrl = `https://www.reed.co.uk/jobs/${searchQuery}-jobs-in-${location}?${salary}${radius}${jobType}${datePosted}${sort}`;
         scrapeReed(res, reedUrl)
     }
 }

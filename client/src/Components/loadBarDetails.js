@@ -1,5 +1,6 @@
 import React ,{useRef, useEffect, useState}from 'react'
 
+
 export default function LoadBarDetails(props) {
     const [state, setstate] = useState({display: props.display}) 
     const displayRef = useRef('none');
