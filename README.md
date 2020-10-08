@@ -1,68 +1,90 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Job-Scrapper project
 
-## Available Scripts
+_JobScrapper website using react and puppeteer_ 
 
-In the project directory, you can run:
+![](jobScrapper.gif)
 
-### `npm start`
+## Demo
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+**[Demo]()** 
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
 
-### `npm test`
+## Websites it can scrape information from
+* LinkedIn
+* Indeed
+* Reed
+* JobSite
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+## Summary
+This project is designed to scrape job websites such as reed, jobsite, linkedin and indeed. This works by creating a nodejs puppeteer server and requesting information from that site.
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+I created this as I enjoyed making the job filter design challenge from one of my [github repos]() (frontendmentor.io challenge) I created to try and get as close to the design as possible and wanted to do more with it. I also was not able to get the apis for each job website so I thought this would be a fun challenge to learn about puppeteer and how to scrape job websites for information. 
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+## Table of content
+1. [Installation](#installation)
+1. [What I used in this project](#What-I-used-in-this-project)
+    1. [What I used in this project](#What's-used-in-this-project)
+    2. [References used](#References-used)
+2. [Parts of the Website](#Parts-of-the-website)
+    1. [Search page](#search-page)
+    2. [Puppeteer server](#puppeteer-server)
+    3. [Advanced Search options](#advanced-search)  
+    4. [Saved Jobs](#gallery)
+    6. [PWA](#PWA)
+3. [Issues I had and changes I made](#Issues-I-had-and-changes-I-made)
+4. [Improvements](#Improvements)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Installation
+Steps to install the neccessary files and run the program :
 
-### `npm run eject`
+1. Clone the Repo:
+```bash
+git clone https://github.com/Pudderz/Job-Search.git
+```
+2. Change the directory into the server and install the neccessary dependencies and then the same with the client folder 
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```bash
+cd server
+npm install
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+cd ./client
+npm install
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Learn More
+ Install the dependencies with [`npm`](https://www.npmjs.com/)
+     `$ npm install`
+    + `$ npm install`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+2. Download the `stronghold` binary from Releases tab.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## What's used in this project
+* Javascript
+* Sass
+* React
+* Puppeteer
+* idb-keyval
+* React-router
+* Service-worker
+* express
+### References
 
-### Code Splitting
+## Parts of the Website
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+### Search page
 
-### Analyzing the Bundle Size
+### Puppeteer server
+#### How it works
+The server listens for a request, once received it creates the urls for each of the selected websites the user asked to scrape. Once done it opens the requested 
+### Advanced Search Options
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+### Saved Jobs
 
-### Making a Progressive Web App
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+### PWA
 
-### Advanced Configuration
+## Issues I had and changes I made
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+## Improvements
