@@ -84,13 +84,62 @@ label{
     max-width: 20%;
     display: inline-grid;
     height: max-content;
-    position: sticky;
-   
-
+    position: fixed;
+    transition: all 1s;
+    z-index: 1;
+    top: 22%;
+    overflow: auto;
+    height: 73%;
 }
 
-main ul{
+.listOfJobs {
     display: inline-grid;
-    width: 80%;
+    max-width: 80%;
     margin-left: 0;
+    transition: all 1s;
+    float: right;
+    margin-top: 207px;
+}
+.select{
+    position: fixed;
+    top:0%;
+    right: 0%;
+    left: 0%;
+    height: fit-content;
+    z-index: 2;
+    background-color: #effafa;
+}
+@media(max-width: 1200px){
+    .listOfJobs{
+        max-width: 100%;
+        margin-top: 0px;
+    }
+    #frontPage{
+        max-width: 0%;
+        overflow: hidden;
+        
+    }
+    .select{
+        display: contents;
+        position: relative;
+    }
+}
+
+.filterSites{
+    display: inline-block;
+    margin: 5px;
+    label{
+        margin: 5px;
+    }
+    
+}
+
+nav{
+    z-index: 3 !important;
+}
+.select hr{
+    margin: 0;
+}
+body, html{
+    min-height: 100%;
 }

@@ -5,31 +5,28 @@ import { MySearchContext } from './searchBarContext'
 
 
 class FormPage extends Component {
+    constructor(){
+        super()
+        this.state={
+            styleClass:"",
+        }
+    }
    changeExtraParameters=(e)=>{
         const value = e.target.value
-        const location = e.target.parentElement.parentElement.childNodes[0].textContent.toLowerCase();
+        const location = e.target.parentElement.parentElement.childNodes[0].textContent;
         const parameter = e.target.getAttribute('name');
-        console.log('value:'+ value);
-        console.log(`location ${location}`);
-        console.log(`parameters ${parameter}`)
        this.props.changeExtraParametersInfo(location, parameter, value)
    }
     render() {
         return (
             <MySearchContext.Consumer>
                 {context=>
-                <div id="frontPage">
-                    {/* <div id="headerBackground">
-                        <h1>Job Search</h1>
-                    </div> */}
+                <div id="frontPage" className={this.state.styleClass}>
                     <div id="formDiv">
                         
                         <form id="form" onSubmit={context.onSubmit}>
                             <h3>Advance search options</h3>
-                            <label>Job Name:
-                                <input type="search" onChange={context.changeSearchValue} value={context.state.searchValue} required placeholder="Search Jobs"/></label>  
-                            <label htmlFor="location">Location:
-                            <input id="location" type="search" onChange={context.changeLocationValue} value={context.state.locationValue} required placeholder="Location"/></label>        
+                                  
                             <label htmlFor="searchBy">Search Website by:
                                 <select name="options" id="searchBy" onChange={context.sortBy} value={context.state.sortBy}>
                                     <option value="R">Most Relevant</option>
@@ -58,9 +55,10 @@ class FormPage extends Component {
                         <div className="options extraParameters">
                              <div className="card">
                                 <h5>LinkedIn</h5>
+                                <button onClick={()=>console.log('test')}>Show</button>
                                 <label>
                                     DatePosted:
-                                    <select name="datePosted" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.linkedin.datePosted}>
+                                    <select name="Date" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.LinkedIn.Date}>
                                         <option value="none">All</option>
                                         <option value="1">Past 24 hours</option>
                                         <option value="1%2C2">Past week</option>
@@ -69,7 +67,7 @@ class FormPage extends Component {
                                 </label>
                                 <label>
                                     Job Type:
-                                    <select name="jobType" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.linkedin.jobType}>
+                                    <select name="Job" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.LinkedIn.Job}>
                                         <option value="none">All</option>
                                         <option value="T">Temporary</option>
                                         <option value="F">FullTime</option>
@@ -81,9 +79,10 @@ class FormPage extends Component {
                             </div>
                             <div className="card">
                                 <h5>Indeed</h5>
+                                <button onClick={()=>console.log('test')}>Show</button>
                                 <label>
                                     DatePosted:
-                                    <select name="datePosted" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.indeed.datePosted}>
+                                    <select name="Date" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Indeed.Date}>
                                         <option value="none">All</option>
                                         <option value="1">Past 24 hours</option>
                                         <option value="7">Past week</option>
@@ -92,7 +91,7 @@ class FormPage extends Component {
                                 </label>
                                 <label>
                                     Job Type:
-                                    <select name="jobType" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.indeed.jobType}>
+                                    <select name="Job" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Indeed.Job}>
                                         <option value="none">All</option>
                                         <option value="temporary">Temporary</option>
                                         <option value="fulltime">FullTime</option>
@@ -101,7 +100,7 @@ class FormPage extends Component {
                                 </label>
                                 <label>
                                     Radius:
-                                    <select name="radius" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.indeed.radius}>
+                                    <select name="Rad" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Indeed.Rad}>
                                         <option value="none">All</option>
                                         <option value="0">0</option>
                                         <option value="5">5</option>
@@ -113,16 +112,17 @@ class FormPage extends Component {
                                     </select>
                                 </label>
                                 <label>
-                                    Minimum Salary: £{context.state.extraParametersInfo.indeed.salary}
-                                    <input name="salary" type="range" min={10000} max={100000} step={1000} onChange={this.changeExtraParameters} />
+                                    Minimum Salary: £{context.state.extraParametersInfo.Indeed.Sal}
+                                    <input name="Sal" type="range" min={10000} max={100000} step={1000} onChange={this.changeExtraParameters} />
                                 </label>
 
                             </div>
                             <div className="card">
-                                <h5>Jobsite</h5>
+                                <h5>JobSite</h5>
+                                <button onClick={()=>console.log('test')}>Show</button>
                                 <label>
                                     DatePosted:
-                                    <select name="datePosted" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.jobsite.datePosted}>
+                                    <select name="Date" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.JobSite.Date}>
                                         <option value="none">All</option>
                                         <option value="1">Past 24 hours</option>
                                         <option value="3">Past 3 days</option>
@@ -132,7 +132,7 @@ class FormPage extends Component {
                                 </label>
                                 <label>
                                     Job Type:
-                                    <select name="jobType" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.jobsite.jobType}>
+                                    <select name="Job" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.JobSite.Job}>
                                         <option value="none">All</option>
                                         <option value="temporary">Temporary</option>
                                         <option value="permanent">FullTime</option>
@@ -141,7 +141,7 @@ class FormPage extends Component {
                                 </label>
                                 <label>
                                     Radius:
-                                    <select name="radius" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.jobsite.jobType}>
+                                    <select name="Rad" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.JobSite.Job}>
                                     <   option value="none">All</option>
                                         <option value="0">0</option>
                                         <option value="5">5</option>
@@ -151,15 +151,16 @@ class FormPage extends Component {
                                     </select>
                                 </label>
                                 <label>
-                                    Minimum Salary: £{context.state.extraParametersInfo.jobsite.salary}
-                                    <input name="salary" type="range" min={10000} max={100000} step={10000} onChange={this.changeExtraParameters}/>
+                                    Minimum Salary: £{context.state.extraParametersInfo.JobSite.Sal}
+                                    <input name="Sal" type="range" min={10000} max={100000} step={10000} onChange={this.changeExtraParameters}/>
                                 </label>
                             </div>
                             <div className="card">
                                 <h5>Reed</h5>
+                                <button onClick={()=>console.log('test')}>Show</button>
                                 <label>
                                     DatePosted:
-                                    <select name="datePosted" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.reed.datePosted}>
+                                    <select name="Date" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Reed.Date}>
                                         <option value="none">All</option>
                                         <option value="Today">Past 24 hours</option>
                                         <option value="LastThreeDays">Past 3 days</option>
@@ -169,7 +170,7 @@ class FormPage extends Component {
                                 </label>
                                 <label>
                                     Job Type:
-                                    <select name="jobType" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.reed.jobType}>
+                                    <select name="Job" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Reed.Job}>
                                         <option value="none">All</option>
                                         <option value="temp">Temporary</option>
                                         <option value="perm">Permanent</option>
@@ -180,7 +181,7 @@ class FormPage extends Component {
                                 </label>
                                 <label>
                                     Radius:
-                                    <select name="radius" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.reed.radius}>
+                                    <select name="Rad" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Reed.Rad}>
                                         <option value="none" defaultValue>All</option>
                                         <option value="0">0</option>
                                         <option value="1">1</option>
@@ -193,8 +194,8 @@ class FormPage extends Component {
                                     </select>
                                 </label>
                                 <label>
-                                    Minimum Salary: £{context.state.extraParametersInfo.reed.salary}
-                                    <input name="salary" type="range" min={10000} max={100000} step={2000} onChange={this.changeExtraParameters}/>
+                                    Minimum Salary: £{context.state.extraParametersInfo.Reed.Sal}
+                                    <input name="Sal" type="range" min={10000} max={100000} step={2000} onChange={this.changeExtraParameters}/>
                                 </label>
                             </div>
                         </div>

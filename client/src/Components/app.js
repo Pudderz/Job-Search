@@ -28,28 +28,28 @@ class App extends React.Component{
         loadJobSite: true,
         sortBy: 'id',
         info: '',
-        'extraParametersInfo': {
-          linkedin: {
-            datePosted: 'none',
-            jobType: 'none',
+        extraParametersInfo: {
+          LinkedIn: {
+            Date: 'none',
+            Job: 'none',
           },
-          'indeed':{
-            'datePosted': 'none',
-            jobType: 'none',
-            radius: 'none',
-            salary: 'none',
+          Indeed:{
+            Date: 'none',
+            Job: 'none',
+            Rad: 'none',
+            Sal: 'none',
           },
-          reed:{
-            datePosted: 'none',
-            jobType: 'none',
-            radius: 'none',
-            salary: 'none',
+          Reed:{
+            Date: 'none',
+            Job: 'none',
+            Rad: 'none',
+            Sal: 'none',
           },
-          jobsite:{
-            datePosted: 'none',
-            jobType: 'none',
-            radius: 'none',
-            salary: 'none',
+          JobSite:{
+            Date: 'none',
+            Job: 'none',
+            Rad: 'none',
+            Sal: 'none',
           }
         }
     }
@@ -91,7 +91,7 @@ shouldComponentUpdate = (nextProps, nextState)=>{
 }
 
 
-loadJobs= () =>{
+loadJobs= (searchValue, locationValue) =>{
     let whatSitesToLoad= {
       'linkedIn': !this.state.loadLinkedIn,
       'reed': !this.state.loadReed,
@@ -99,10 +99,10 @@ loadJobs= () =>{
       'indeed': !this.state.loadIndeed,
     } 
     
-    //TODO remove event listeners 
+    
     const url = new URL('http://localhost:3000/stream');
-    url.searchParams.set('q', this.state.searchValue);
-    url.searchParams.set('location', this.state.locationValue);
+    url.searchParams.set('q', searchValue);
+    url.searchParams.set('location', locationValue);
     url.searchParams.set('indeed', this.state.loadIndeed);
     url.searchParams.set('linked', this.state.loadLinkedIn);
     url.searchParams.set('reed', this.state.loadReed);
@@ -110,21 +110,16 @@ loadJobs= () =>{
     if(this.state.sortBy !== 'id'){
       url.searchParams.set('sortby', this.state.sortBy);
     }
-      url.searchParams.set('lDate', this.state.extraParametersInfo.linkedin.datePosted);
-      url.searchParams.set('lJob', this.state.extraParametersInfo.linkedin.jobType);
-      url.searchParams.set('inDate', this.state.extraParametersInfo.indeed.datePosted);
-      url.searchParams.set('inJob', this.state.extraParametersInfo.indeed.jobType);
-      url.searchParams.set('inRad', this.state.extraParametersInfo.indeed.radius);
-      url.searchParams.set('inSal', this.state.extraParametersInfo.indeed.salary);
-      url.searchParams.set('jDate', this.state.extraParametersInfo.jobsite.datePosted);
-      url.searchParams.set('jJob', this.state.extraParametersInfo.jobsite.jobType);
-      url.searchParams.set('jRad', this.state.extraParametersInfo.jobsite.radius);
-      url.searchParams.set('jSal', this.state.extraParametersInfo.jobsite.salary);
-      url.searchParams.set('rDate', this.state.extraParametersInfo.reed.datePosted);
-      url.searchParams.set('rJob', this.state.extraParametersInfo.reed.jobType);
-      url.searchParams.set('rRad', this.state.extraParametersInfo.reed.radius);
-      url.searchParams.set('rSal', this.state.extraParametersInfo.reed.salary);
-      
+    for(const key in this.state.extraParametersInfo){
+      if(this.state[`load${key}`]=== true){
+          for(const [itemKey, value] of Object.entries(this.state.extraParametersInfo[key])){
+            if(value !== 'none'){
+              console.log(`${key.slice(0,1).toLowerCase()}${itemKey}`, value);
+              url.searchParams.set(`${key.slice(0,1).toLowerCase()}${itemKey}`, value);
+            }
+          }
+      }
+    }
       const sse = new EventSource(url);
       let stateArray = []; 
       let loaded = false;
@@ -235,15 +230,10 @@ loadJobs= () =>{
     }
     return [...this.quickSortData(lessThanPivot, sortBy),array[array.length-1],...this.quickSortData(moreThanPivot, sortBy)];
   }
-  filterResults =(value)=>{
-    this.setState({
-      jobResults: value
-    },()=>this.sortData())
-  }
-
-  sortData=()=>{
+ 
+  sortData=(results = this.state.jobResults)=>{
         this.setState({
-            jobResults: this.quickSortData(this.state.jobResults, this.state.sortBy),
+            jobResults: this.quickSortData(results, this.state.sortBy),
         })
     }
     changeExtraParametersInfo=(site, parameter, value)=>{
@@ -255,17 +245,14 @@ loadJobs= () =>{
               [parameter]: value,
             }
           },
-        },()=>{
-          console.log(this.state)
-        console.log(this.state.extraParametersInfo[site])
         })
-        
-        
+ 
     }
+
   render(){
     return(
     <Router>
-      <div>
+      <>
         <nav>
           <ul>
             <li>
@@ -287,11 +274,11 @@ loadJobs= () =>{
             locationValue:'', 
           })
           },
-          onFilter: (value)=>this.filterResults(value),
-          changeExtraParametersInfo: value=>this.changeExtraParametersInfo(value),
-          onSubmit: e=> {
+          onFilter: (value)=>this.sortData(value),
+          onSubmit: (e, searchValue, locationValue)=> {
             e.preventDefault();
-            this.loadJobs();
+            console.log(searchValue, locationValue)
+            this.loadJobs(searchValue, locationValue);
           },
           sortBy: value =>{
             this.setState({
@@ -311,11 +298,14 @@ loadJobs= () =>{
               <SavedJobsPage />
             </Route>
             <Route path="/">
-              <JobPage jobResults = {this.state.jobResults}/>
+              <JobPage
+               jobResults = {this.state.jobResults}
+               changeExtraParametersInfo={this.changeExtraParametersInfo}
+               />
             </Route>
           </Switch>
         </MySearchContext.Provider>
-      </div>
+      </>
     </Router>
   );
   }

@@ -7,19 +7,25 @@ import SortResults from './sortResults'
 import GoToTopBot from './goToTopBot';
 import FormPage from './formPage'
 class JobPage extends React.Component{
-    
+    handleFormChange= (a, b, c)=>{
+        this.props.changeExtraParametersInfo(a, b, c);
+    }
     render(){
         console.log(this.props.jobResults);
         return(
-            <main> 
+            <> 
+                <div className="select">
                 <div id="headerBackground">
                 </div>
                 
-                <Search/>    
+                    <Search/>    
                 <LoadBar/>
                 <SortResults/>
-                <FormPage />
-               <ul>
+                </div>
+                <FormPage changeExtraParametersInfo= {this.handleFormChange}/>
+                
+                
+               <ul className="listOfJobs">
                 {this.props.jobResults.length >= 0 &&
                 this.props.jobResults.map(data => {
                     return(
@@ -34,7 +40,7 @@ class JobPage extends React.Component{
                 }
                 </ul>
                 <GoToTopBot/>
-            </main>
+            </>
         )
     }
 }

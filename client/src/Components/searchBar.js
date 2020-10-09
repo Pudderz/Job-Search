@@ -1,27 +1,30 @@
-import React, { Component } from 'react';
+import React, { Component , useRef, useEffect, useState} from 'react';
 import './searchStyles.scss'
 import {MySearchContext} from './searchBarContext'
-class search extends Component {
-    _isMounted = false
-    constructor(props){
-        super(props)
-        this.state={
-            top: '1%',
-        }
-    }
+ export const Search = (props) => {
+    let _isMounted = false
+    // constructor(props){
+    //     super(props)
+    //     this.state={
+    //         top: '1%',
+    //     }
+    // }
+    const [state, setState]= useState({top:'1%'})
+    const[searchState, setSearchState] = useState({value: ''})
+    const[locationState, setLocationState] = useState({value: ''})
 
-    componentDidMount = ()=>{
-        this._isMounted = true;
+    useEffect(() => {
+        _isMounted = true;
         let previousYPos = window.pageYOffset;
         window.addEventListener('scroll', e=>{
             let currentYPos = window.pageYOffset;
-            if(this._isMounted){
+            if(_isMounted){
                 if(previousYPos > currentYPos){
-                this.setState({
+                setState({
                     top: '1%',
                 });
             }else{
-                this.setState({
+                setState({
                     top: '-200px',
                 });
             }
@@ -29,30 +32,39 @@ class search extends Component {
             
             previousYPos = currentYPos;
         })
-    }
-    componentWillUnmount(){
-        this._isMounted =false
-    }
+        return () => {
+            _isMounted =false
+        }
+    }, [])
 
-    render() {
+    const changeSearch = (e)=>{
+        setSearchState({value: e.target.value});
+    }
+    const changeLocation = (e)=>{
+        setLocationState({value: e.target.value})
+    }
+    
         return (
-            <div id="search" style={{top:this.state.top}}>
+            <div id="search" style={{top:state.top}}>
                 <MySearchContext.Consumer>
                     {context=>
-                        <form onSubmit={context.onSubmit}>
+                        <form onSubmit={(e)=>context.onSubmit( e, searchState.value, locationState.value)}>
                             <input type="search" 
-                            onChange={context.changeSearchValue} 
-                            value={context.state.searchValue} 
+                            onChange={changeSearch} 
+                            value={searchState.value} 
                             required 
                             placeholder="Search Jobs"/>  
                             <input id="location" type="search" 
-                            onChange={context.changeLocationValue} 
-                            value={context.state.locationValue} required placeholder="Location"/> 
+                            onChange={changeLocation} 
+                            value={locationState.value} required placeholder="Location"/> 
                             <div className="button">
                                 <button className="clear" type="submit">Search</button>
-                                <input className="clear" type="button" value="Clear" 
-                                    onClick={context.clearValues}
-                                />
+                                <button className="clear" type="button" value="" 
+                                    onClick={e=>{
+                                        changeSearch(e);
+                                        changeLocation(e);
+                                    }}
+                                >Clear</button>
                             </div> 
                         </form>
                     }
@@ -60,7 +72,7 @@ class search extends Component {
             </div>
             
         )
-    }
+    
 }
 
-export default search
+export default Search
