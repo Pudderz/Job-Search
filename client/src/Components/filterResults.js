@@ -46,7 +46,7 @@ export default function FilterResults(props) {
             <input type="text" onChange={filter} style={{'backgroundColor': 'white', 'width': 'auto'}} placeholder="Filter Results"/>
         </label>
         <div className="filterSites">
-            <label>indeed:
+            <label>Indeed:
                 <input type="checkBox" onChange={changeFilter} style={{'backgroundColor': 'white', 'width': 'auto'}} value="indeed" defaultChecked/>
             </label>
             <label>linkedIn:<input type="checkBox" onChange={changeFilter} style={{'backgroundColor': 'white', 'width': 'auto'}} value="linkedIn" defaultChecked/></label>

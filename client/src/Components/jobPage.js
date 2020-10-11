@@ -25,7 +25,7 @@ class JobPage extends React.Component{
                 <FormPage changeExtraParametersInfo= {this.handleFormChange}/>
                 
                 
-               <ul className="listOfJobs">
+               <ul className={`listOfJobs ${this.props.widthResults}`}  >
                 {this.props.jobResults.length >= 0 &&
                 this.props.jobResults.map(data => {
                     return(
@@ -35,7 +35,7 @@ class JobPage extends React.Component{
                 }
                 {this.props.jobResults.length === 0 &&
                 <div>
-                    <p>There's nothing here, try searching for somthing</p>
+                    <p>There's nothing here</p>
                 </div>
                 }
                 </ul>

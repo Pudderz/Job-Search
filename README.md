@@ -1,6 +1,6 @@
 # Job-Scrapper project
 
-_JobScrapper website using react and puppeteer_ 
+_JobScrapper website and server using react and puppeteer_ 
 
 ![](jobScrapper.gif)
 

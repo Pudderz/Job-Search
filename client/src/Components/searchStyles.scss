@@ -25,20 +25,7 @@
             display: grid;
         }
     }
-    .clear{
-        background: none;
-        border-style: none;
-        outline: none;
-        
-        cursor: pointer;
-        color: #7b8e8e;
-        font-weight: 700;
-        font-size: small;
-        &:hover{
-           color: #5ba4a4; 
-           text-decoration: underline;
-        }
-    }
+    
     
     #location{
         border-left: #7b8e8e 1px solid;
@@ -47,6 +34,21 @@
         }
     }
 }
+.clear{
+    background: none;
+    border-style: none;
+    outline: none;
+    
+    cursor: pointer;
+    color: #7b8e8e;
+    font-weight: 700;
+    font-size: small;
+    &:hover{
+       color: #5ba4a4; 
+       text-decoration: underline;
+    }
+}
+
 input[type=search]:focus{
     outline: none;
 }

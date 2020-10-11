@@ -9,6 +9,14 @@ class FormPage extends Component {
         super()
         this.state={
             styleClass:"",
+            displayLinked: 'none',
+            showIndeed: 'none',
+            showJobsite: 'none',
+            showReed: 'none',
+            indeedButton: 'Show',
+            reedButton: 'Show',
+            linkedButton: 'Show',
+            jobSiteButton: 'Show',
         }
     }
    changeExtraParameters=(e)=>{
@@ -17,14 +25,52 @@ class FormPage extends Component {
         const parameter = e.target.getAttribute('name');
        this.props.changeExtraParametersInfo(location, parameter, value)
    }
+
+   showIndeed= ()=>{
+       this.setState({
+           showIndeed: (this.state.showIndeed==='block')?'none': 'block',
+           indeedButton :(this.state.showIndeed==='block')? 'Show': 'Hide',
+       })
+   }
+   showLinked=()=>{
+        this.setState({
+            displayLinked: (this.state.displayLinked==='block')?'none': 'block',
+            linkedButton :(this.state.displayLinked==='block')? 'Show': 'Hide',
+        })
+   }
+   showReed=()=>{
+        this.setState({
+            showReed: (this.state.showReed==='block')?'none': 'block',
+            reedButton :(this.state.showReed==='block')? 'Show': 'Hide',
+        })
+   }
+   showJobsite=()=>{
+        this.setState({
+            showJobsite: (this.state.showJobsite==='block')?'none': 'block',
+            jobSiteButton :(this.state.showJobsite==='block')? 'Show': 'Hide',
+        })
+   }
+
+   onSubmit=(e)=>{
+    e.preventDefault();
+   }
+
+   showExtra=(e)=>{
+       this.setState({
+           [e.target.value] :(e.target.checked)? 'grid': 'none',
+           
+       })
+    
+   }
     render() {
         return (
             <MySearchContext.Consumer>
                 {context=>
-                <div id="frontPage" className={this.state.styleClass}>
+                <div id="frontPage" className={context.state.showAdvanced} >
                     <div id="formDiv">
                         
-                        <form id="form" onSubmit={context.onSubmit}>
+                        <form id="form" onSubmit={this.onSubmit}>
+                            
                             <h3>Advance search options</h3>
                                   
                             <label htmlFor="searchBy">Search Website by:
@@ -33,30 +79,34 @@ class FormPage extends Component {
                                     <option value="DD">Most Recent</option>
                                 </select>
                             </label>
-                            <label htmlFor="websites">Which Websites:</label>
+                            <label htmlFor="websites"  style={{'fontWeight': '600','marginTop': '15px'}}>Which Websites:</label>
                             <div className="whichSite card">
                                 
                                 
                                 <label htmlFor="linkedIn">LinkedIn: 
-                                <input type="checkBox" name="websites" id="linkedIn" value="LinkedIn" onChange={context.loadLinkedIn} checked={context.state.loadLinkedIn}/>
+                                <input type="checkBox" name="websites" id="linkedIn" value="LinkedIn" onChange={e=>{context.loadLinkedIn(e); this.showExtra(e)}} checked={context.state.loadLinkedIn}/>
                                 </label>
                                 <label htmlFor="indeed">Indeed:
-                                <input type="checkBox" name="websites" id="indeed" value="Indeed" onChange={context.loadIndeed} checked={context.state.loadIndeed}/>
+                                <input type="checkBox" name="websites" id="indeed" value="Indeed" onChange={e=>{context.loadIndeed(e); this.showExtra(e)}} checked={context.state.loadIndeed}/>
                                 </label>
                                 <label htmlFor="reed">Reed:
-                                <input type="checkBox" name="websites" id="reed" value="Reed" onChange={context.loadReed} checked={context.state.loadReed}/>
+                                <input type="checkBox" name="websites" id="reed" value="Reed" onChange={e=>{context.loadReed(e); this.showExtra(e)}} checked={context.state.loadReed}/>
                                 </label>
                                 <label htmlFor="jobsite">Jobsite:
-                                <input type="checkBox" name="websites" id="jobsite" value="Jobsite" onChange={context.loadJobSite} checked={context.state.loadJobSite}/>
+                                <input type="checkBox" name="websites" id="jobsite" value="Jobsite" onChange={e=>{context.loadJobSite(e); this.showExtra(e)}} checked={context.state.loadJobSite}/>
                                 </label>
                                 
                             </div>
                             <h2>Extra Parameters</h2>
                         <div className="options extraParameters">
-                             <div className="card">
+                             <div className="card"  style={{'display': this.state.LinkedIn}}>
+                             <div className="extraParaheader" >
                                 <h5>LinkedIn</h5>
-                                <button onClick={()=>console.log('test')}>Show</button>
-                                <label>
+                <button className="clear" onClick={this.showLinked}>{this.state.linkedButton}</button>
+                            </div>
+                                
+                                <div className="extraDetails" style={{'display': this.state.displayLinked}}>
+                                    <label>
                                     DatePosted:
                                     <select name="Date" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.LinkedIn.Date}>
                                         <option value="none">All</option>
@@ -64,8 +114,8 @@ class FormPage extends Component {
                                         <option value="1%2C2">Past week</option>
                                         <option value="%2C2%2C3%2C4">Past month</option>
                                     </select>
-                                </label>
-                                <label>
+                                    </label>
+                                    <label>
                                     Job Type:
                                     <select name="Job" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.LinkedIn.Job}>
                                         <option value="none">All</option>
@@ -75,51 +125,64 @@ class FormPage extends Component {
                                         <option value="C">Contract</option>
                                         <option value="I">Internship</option>
                                     </select>
-                                </label>
+                                    </label>
+                                </div>
+                                
                             </div>
-                            <div className="card">
-                                <h5>Indeed</h5>
-                                <button onClick={()=>console.log('test')}>Show</button>
-                                <label>
-                                    DatePosted:
-                                    <select name="Date" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Indeed.Date}>
-                                        <option value="none">All</option>
-                                        <option value="1">Past 24 hours</option>
-                                        <option value="7">Past week</option>
-                                        <option value="14">Past 2 weeks</option>
-                                    </select>
-                                </label>
-                                <label>
-                                    Job Type:
-                                    <select name="Job" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Indeed.Job}>
-                                        <option value="none">All</option>
-                                        <option value="temporary">Temporary</option>
-                                        <option value="fulltime">FullTime</option>
-                                        <option value="parttime">Part-Time</option>
-                                    </select>
-                                </label>
-                                <label>
-                                    Radius:
-                                    <select name="Rad" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Indeed.Rad}>
-                                        <option value="none">All</option>
-                                        <option value="0">0</option>
-                                        <option value="5">5</option>
-                                        <option value="10">10</option>
-                                        <option value="15">15</option>
-                                        <option value="25">25</option>
-                                        <option value="50">50</option>
-                                        <option value="100">100</option>
-                                    </select>
-                                </label>
-                                <label>
-                                    Minimum Salary: £{context.state.extraParametersInfo.Indeed.Sal}
-                                    <input name="Sal" type="range" min={10000} max={100000} step={1000} onChange={this.changeExtraParameters} />
-                                </label>
+                            <div className="card" style={{'display': this.state.Indeed}}>
+                                <div className="extraParaheader">
+                                    <h5>Indeed</h5>
+                <button type="button" className="clear" onClick={this.showIndeed}>{this.state.indeedButton}</button>
+                                </div>
+                                
+                                <div className="extraDetails" style={{'display': this.state.showIndeed}}>
+                                    <label>
+                                        DatePosted:
+                                        <select name="Date" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Indeed.Date}>
+                                            <option value="none">All</option>
+                                            <option value="1">Past 24 hours</option>
+                                            <option value="7">Past week</option>
+                                            <option value="14">Past 2 weeks</option>
+                                        </select>
+                                    </label>
+                                    <label>
+                                        Job Type:
+                                        <select name="Job" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Indeed.Job}>
+                                            <option value="none">All</option>
+                                            <option value="temporary">Temporary</option>
+                                            <option value="fulltime">FullTime</option>
+                                            <option value="parttime">Part-Time</option>
+                                        </select>
+                                    </label>
+                                    <label>
+                                        Radius:
+                                        <select name="Rad" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Indeed.Rad}>
+                                            <option value="none">All</option>
+                                            <option value="0">0</option>
+                                            <option value="5">5</option>
+                                            <option value="10">10</option>
+                                            <option value="15">15</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                    </label>
+                                    <label>
+                                        Minimum Salary: £{context.state.extraParametersInfo.Indeed.Sal}
+                                        <input name="Sal" type="range" min={10000} max={100000} step={1000} onChange={this.changeExtraParameters} />
+                                    </label>
+                                </div>
+                                
 
                             </div>
-                            <div className="card">
-                                <h5>JobSite</h5>
-                                <button onClick={()=>console.log('test')}>Show</button>
+                            <div className="card" style={{'display': this.state.Jobsite}}>
+                                <div className="extraParaheader">
+                                    <h5>JobSite</h5>
+                                <button className="clear" onClick={this.showJobsite}>{this.state.jobSiteButton}</button>
+                                    
+                                </div>
+                                
+                                <div className="extraDetails" style={{'display': this.state.showJobsite}}>
                                 <label>
                                     DatePosted:
                                     <select name="Date" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.JobSite.Date}>
@@ -154,11 +217,17 @@ class FormPage extends Component {
                                     Minimum Salary: £{context.state.extraParametersInfo.JobSite.Sal}
                                     <input name="Sal" type="range" min={10000} max={100000} step={10000} onChange={this.changeExtraParameters}/>
                                 </label>
+                                </div>
+                               
                             </div>
-                            <div className="card">
-                                <h5>Reed</h5>
-                                <button onClick={()=>console.log('test')}>Show</button>
-                                <label>
+                            <div className="card" style={{'display': this.state.Reed}}>
+                                <div className="extraParaheader">
+                                    <h5>Reed</h5>
+                <button className="clear" onClick={this.showReed}>{this.state.reedButton}</button> 
+                                </div>
+                                
+                                <div className="extraDetails" style={{'display': this.state.showReed}}>
+                                    <label>
                                     DatePosted:
                                     <select name="Date" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.Reed.Date}>
                                         <option value="none">All</option>
@@ -197,6 +266,8 @@ class FormPage extends Component {
                                     Minimum Salary: £{context.state.extraParametersInfo.Reed.Sal}
                                     <input name="Sal" type="range" min={10000} max={100000} step={2000} onChange={this.changeExtraParameters}/>
                                 </label>
+                                </div>
+                                
                             </div>
                         </div>
 
@@ -205,11 +276,10 @@ class FormPage extends Component {
 
 
 
-                            <button type="submit" id="formSubmit" >reset</button>
+                            <button type="submit" className="clear" id="formSubmit" onClick={context.resetOptions}>reset</button>
                         </form>    
                     </div>
-                    <LoadBar/>
-                        
+                    
                 </div>
             }</MySearchContext.Consumer>
         )

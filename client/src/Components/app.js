@@ -51,7 +51,9 @@ class App extends React.Component{
             Rad: 'none',
             Sal: 'none',
           }
-        }
+        },
+        showAdvanced: 'none',
+        widthResults: 'show',
     }
   }
   compare=(previousProps, newProps)=>{
@@ -248,7 +250,12 @@ loadJobs= (searchValue, locationValue) =>{
         })
  
     }
-
+    showAdvanced=()=>{
+      this.setState({
+        showAdvanced: (this.state.showAdvanced==='inline-block')?'none' : 'inline-block',
+        widthResults: (this.state.showAdvanced==='inline-block')?'show' : 'hide',
+      })
+    }
   render(){
     return(
     <Router>
@@ -273,6 +280,35 @@ loadJobs= (searchValue, locationValue) =>{
             searchValue: '',
             locationValue:'', 
           })
+          },
+          showAdvanced: value=>{this.showAdvanced(value)},
+          resetOptions: ()=>{
+            this.setState({
+              extraParametersInfo: {
+              LinkedIn: {
+                Date: 'none',
+                Job: 'none',
+              },
+              Indeed:{
+                Date: 'none',
+                Job: 'none',
+                Rad: 'none',
+                Sal: 'none',
+              },
+              Reed:{
+                Date: 'none',
+                Job: 'none',
+                Rad: 'none',
+                Sal: 'none',
+              },
+              JobSite:{
+                Date: 'none',
+                Job: 'none',
+                Rad: 'none',
+                Sal: 'none',
+              }
+            }
+            })
           },
           onFilter: (value)=>this.sortData(value),
           onSubmit: (e, searchValue, locationValue)=> {
@@ -301,6 +337,7 @@ loadJobs= (searchValue, locationValue) =>{
               <JobPage
                jobResults = {this.state.jobResults}
                changeExtraParametersInfo={this.changeExtraParametersInfo}
+               widthResults= {this.state.widthResults}
                />
             </Route>
           </Switch>
