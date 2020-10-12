@@ -4,6 +4,8 @@ const express = require('express');
 require("dotenv").config();
 const path = require('path');
 const port = process.env.PORT || 8080;
+const month= ["January","February","March","April","May","June","July",
+            "August","September","October","November","December"];
 let browser;
 const app = express()
 const regex = /^\d+/i;
@@ -67,6 +69,22 @@ function timeValue(postedAt){
     return time;
 }
 
+const reedTimeValue=(postedAt)=>{
+    let firstWord = postedAt.match(/[a-z,A-Z]+/i);
+    const numberMonth = month.indexOf(firstWord[0]);
+    if(numberMonth !== -1){
+        let jobDay = (regex.test(postedAt))? postedAt.match(/^\d+/i) : 1;
+        let currentDate = new Date();
+        let jobDate = new Date();
+        jobDate.setMonth(numberMonth);
+        jobDate.setDate(jobDay)
+        const diffTime = Math.abs(currentDate - jobDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        return [diffDays, diffDays + " days ago"]
+    } else{
+        return [timeValue(postedAt) , postedAt]
+    }
+}
 
 async function scraper(res, site, url, callback, smallSizeQuestion, showCSS, waitForSelector, findItems, startingKey){
 
@@ -101,34 +119,30 @@ async function scraper(res, site, url, callback, smallSizeQuestion, showCSS, wai
         await page.waitForSelector(waitForSelector, {timeout: 2000});
         const jobSiteResults = await page.$$(findItems);
     
-    for(results of jobSiteResults){
-        try{
-            const itemResult =await callback(results, key, page);
-            res.write(`event: newData\ndata: ${JSON.stringify(itemResult)}\n\n`);
-        }catch(e){
-            numOfErrors++;
-            console.log('error occured in jobSite search ' + e);
-            console.log('JobSite couldnt scrape key:'+ key);
-        }finally{
-            key++;
-        }      
-    }
+        for(results of jobSiteResults){
+            try{
+                const itemResult =await callback(results, key, page);
+                res.write(`event: newData\ndata: ${JSON.stringify(itemResult)}\n\n`);
+            }catch(e){
+                numOfErrors++;
+                console.log('error occured in jobSite search ' + e);
+                console.log('JobSite couldnt scrape key:'+ key);
+            }finally{
+                key++;
+            }      
+        }
     }catch(e){
-        console.log(`error occured in ${site} search and couldnt be processed  ${e}`);
+        console.log(`error occured in ${site} search and couldnt be processed or no results shown ${e}`);
         res.write(`event: error\ndata: ${site}\n\n`);
     }finally{
         res.write(`event: close\ndata: ${site}\n\n`);
         await page.close();
-        console.log(`${site} Page finished and closed, ${key-numOfErrors}/${key}  scraped`);
+        console.log(`${site} Page finished and closed, ${key-numOfErrors-startingKey}/${key-startingKey}  scraped`);
     }
 }
 
 async function indeed(info, indeedKey){
-    // let indeedKey=0;
-    // await indeedPage.waitForSelector('div.jobsearch-SerpJobCard', {timeout: 1000});
-    //     const data = await indeedPage.$$('div.jobsearch-SerpJobCard');
-    //     for(info of data){
-    //         try{
+   
                 let [postedAt, company, location, summary, moreInfo, position] = await Promise.allSettled([
                     info.$eval('.date', date => date.textContent),
                     info.$eval('.company', date => date.textContent),
@@ -156,13 +170,7 @@ async function indeed(info, indeedKey){
                     'site': 'indeed',
                     'time': time,
                 });
-        //     }catch(e){
-        //         console.log('error occured in indeed search ' + e);
-        //         console.log('indeed couldnt scrape key: ' + indeedKey);
-        //     } finally{
-        //         indeedKey++;
-        //     }
-        // }
+    
 }
 async function reed(results, key){
 
@@ -178,16 +186,17 @@ async function reed(results, key){
             
             location = location.trim();
             position = position.trim();
-
+            
             //Removes the words after 'by...' and the word 'posted ' from the postedAt string
-            postedAt = postedAt.trim();
+            postedAt= postedAt.trim();
             postedAt = postedAt.substring(postedAt.indexOf(' '), postedAt.lastIndexOf(`by ${company}`));
-
-            const time = timeValue(postedAt.substring(postedAt.indexOf(' ')))
-        
+            
+           // const time = timeValue(postedAt.substring(postedAt.indexOf(' ')))
+            const [time, postedTime]= reedTimeValue(postedAt.substring(postedAt.indexOf(' ')+1))
+            
             return {
                 'position': position,
-                'postedAt': postedAt,
+                'postedAt': postedTime,
                 'location': location,
                 'company': company,
                 'summary': summary,
@@ -211,14 +220,22 @@ async function jobsite(results, key, page){
             
             let moreInfo = await page.evaluate(node=> node.getAttribute('href'), jobTitle);
             
-            postedAt = postedAt.trim();
-            location = location.trim();
+            
+            
             company = company.trim();
-           
-            location = location.substring(0,location.lastIndexOf(' from')-1)
+            location = location.trim();
+            location = location.substring(0,location.lastIndexOf(' from')-1);
+            
+            postedAt = postedAt.trim();
             if(postedAt.includes('Posted '))postedAt = postedAt.substring(postedAt.indexOf(' ')+1);
-            const time = timeValue(postedAt);
 
+            
+            //Removes the Expires in from the postedAt for the timeValue function so it can be given
+            //an appropiate time value
+            const time = (postedAt.includes('Expires in '))?
+                timeValue(postedAt.substring(postedAt.lastIndexOf('Expires in ')+11)):
+                timeValue(postedAt);
+            
             return {
                 'position': position,
                 'postedAt': postedAt,
@@ -233,7 +250,6 @@ async function jobsite(results, key, page){
         
 }
 async function linkedIn(results, linkedInKey){
-
                 const div = await results.$('div.job-result-card__contents');
                 const position = await div.$eval('h3' , node=> node.textContent);
                 const summary = await div.$eval('div > p', node=> node.textContent);
@@ -281,32 +297,35 @@ function  scrapeJobs(res, req) {
     if(req.query.indeed === 'true'){ 
         const url = new URL('https://www.indeed.co.uk/jobs');
         if(sortBy =='DD')url.searchParams.set('sort', 'date');
-        if(req.query.inJob !== 'none')url.searchParams.set('jt', req.query.inJob)
-        if(req.query.inDate !== 'none')url.searchParams.set('fromage', req.query.inDate)
-        if(req.query.inRad !== 'none')url.searchParams.set('radius', req.query.inRad)
-        if(req.query.inSal !== 'none'){
-            url.searchParams.set('q', `${searchQuery}+${req.query.inSal}`)
-        }else url.searchParams.set('q', `${searchQuery}`)
+        if(req.query.iJob)url.searchParams.set('jt', req.query.iJob);
+        if(req.query.iDate)url.searchParams.set('fromage', req.query.iDate);
+        if(req.query.iRad)url.searchParams.set('radius', req.query.iRad);
+        if(req.query.iSal){
+            url.searchParams.set('q', `${searchQuery}+${req.query.iSal}`);
+        }else url.searchParams.set('q', `${searchQuery}`);
         scraper(res,'indeed', url, indeed, false, false, 'div.jobsearch-SerpJobCard','div.jobsearch-SerpJobCard', 0 );
     }
 
     if(req.query.linked === 'true'){
+        
         const url = new URL(`https://www.linkedin.com/jobs/search`);
         url.searchParams.set('keywords', searchQuery);
         url.searchParams.set('location', location);
         if(sortBy =='DD')url.searchParams.set('sortBy', 'DD');
-        if(req.query.lJob !== 'none')url.searchParams.set('f_JT', req.query.lJob);
-        if(req.query.lDate !== 'none')url.searchParams.set('f_TP', req.query.lDate);
+        if(req.query.lJob )url.searchParams.set('f_JT', req.query.lJob);
+        if(req.query.lDate )url.searchParams.set('f_TP', decodeURIComponent(req.query.lDate));
         scraper(res,'linkedIn', url, linkedIn, true, false, '.job-result-card', 'ul.jobs-search__results-list > li', 19);
     }
+    
     if(req.query.jobsite === 'true'){
-        const jobType = (req.query.jJob !== 'none')? `${req.query.jJob}/` : '';
+        const jobType = (req.query.jJob)? `${req.query.jJob}/` : '';
+
         const url = new URL(`https://www.jobsite.co.uk/jobs/${jobType}${searchQuery}/in-${location}`);
         if(sortBy =='DD')url.searchParams.set('Sort', '2');
         if(sortBy =='DD')url.searchParams.set('scrolled', '268');
-        if(req.query.jDate !== 'none')url.searchParams.set('postedwithin', req.query.jDate);
-        if(req.query.jRad !== 'none')url.searchParams.set('radius', req.query.jRad);
-        if(req.query.jSal !== 'none'){
+        if(req.query.jDate)url.searchParams.set('postedwithin', req.query.jDate);
+        if(req.query.jRad)url.searchParams.set('radius', req.query.jRad);
+        if(req.query.jSal){
             url.searchParams.set('salary', req.query.jRad);
             url.searchParams.set('salarytypeid', '1');
         }
@@ -316,15 +335,15 @@ function  scrapeJobs(res, req) {
     
     if(req.query.reed === 'true'){
         let sort=(sortBy =='DD')?'&sortby=DisplayDate' :'';
-        const url = new URL(`https://www.reed.co.uk/jobs/${searchQuery}-jobs-in-${location}`);
-        if(req.query.rJob !== 'none')url.searchParams.set(req.query.rJob, 'true');
-        if(req.query.rRad !== 'none')url.searchParams.set('proximity', req.query.rRad);
-        if(req.query.rSal !== 'none')url.searchParams.set('salaryfrom', req.query.rSal);
-        if(req.query.rDate !== 'none')url.searchParams.set('datecreatedoffset',req.query.rDate);
+        const url = new URL(`https://www.reed.co.uk/jobs/${searchQuery}-jobs-in-${location}${sort}`);
+        if(req.query.rJob )url.searchParams.set(req.query.rJob, 'true');
+        if(req.query.rRad )url.searchParams.set('proximity', req.query.rRad);
+        if(req.query.rSal )url.searchParams.set('salaryfrom', req.query.rSal);
+        if(req.query.rDate )url.searchParams.set('datecreatedoffset',req.query.rDate);
 
         if(sortBy =='DD')url.searchParams.set('sort');
         //const reedUrl = `https://www.reed.co.uk/jobs/${searchQuery}-jobs-in-${location}?${salary}${radius}${jobType}${datePosted}${sort}`;
-        scraper(res, 'reed', url, reed, true, false, 'article.job-result', 'article.job-result', 65)
+        scraper(res, 'reed', url, reed, true, false, 'article.job-result', 'article.job-result', 65);
         //scrapeReed(res, reedUrl)
     }
 }
