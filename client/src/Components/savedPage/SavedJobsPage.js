@@ -1,14 +1,16 @@
 import React, { Component } from 'react'
-import JobBlock from './jobBlock'
-import GoToTopBot from './goToTopBot'
+import JobBlock from '../mainPage/jobBlock'
+import GoToTopBot from '../goToTopBot'
 import {get , keys } from 'idb-keyval'
-import FilterResults from './filterResults'
+import FilterResults from '../Options/filterResults'
+import './savedJobs.scss'
 export default class SavedJobsPage extends Component {
     constructor(){
         super()
         this.state={
             savedJobs: [],
             initialResults: [],
+            layout: ['',''],
         }
     }
     componentDidMount = async() =>{
@@ -43,6 +45,12 @@ export default class SavedJobsPage extends Component {
             savedJobs: value
         })
     }
+    changeLayout= (colLayout, rowLayout)=>{
+        console.log(`changing Layout ${colLayout} ${rowLayout}`);
+        this.setState({layout: [colLayout, rowLayout]}, ()=>{
+          console.log(`layout changed ${this.state.layout}`)
+        })
+    }
     render() {
         if (!window.indexedDB) {
             return(
@@ -59,11 +67,14 @@ export default class SavedJobsPage extends Component {
             <div>
                 <div id="headerBackground">
                 </div>
-                <h1>Saved Jobs</h1>
-                 <FilterResults jobResults={this.state.initialResults} changeJobs={this.onFilter}/>
-                <ol id="saved results">
+                <div id="savedFilter">
+                    <h1>Saved Jobs</h1>
+                 <FilterResults jobResults={this.state.initialResults} changeJobs={this.onFilter} changeLayout={this.changeLayout}/>
+                </div>
+                 <hr/>
+                <ol id="savedResults" className = {this.state.layout[0]}>
                     {this.state.savedJobs.map(data=>(
-                        <JobBlock  key={data.id} jobDetails={data} removeCallback={e=>this.removeItem(data.id)} isSaved={true} />
+                        <JobBlock  key={data.id} jobDetails={data} removeCallback={e=>this.removeItem(data.id)} isSaved={true} layout={this.state.layout[1]} />
                     ))}
                     
                 </ol>
