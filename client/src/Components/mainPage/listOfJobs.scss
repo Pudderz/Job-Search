@@ -1,0 +1,29 @@
+@media(min-width: 1000px){
+    .colSmallUl{
+    display: inline-flex;
+    flex-wrap: wrap;
+    }
+    .layout{
+        display: inline-block;
+    }
+    .colMedLi{
+        display: block !important;
+        margin: 2% !important;
+        width: 27%;
+        padding: 20px !important;
+        flex-grow: 1;
+        div.logo{
+            display: none;
+        }
+    }
+    .colSmallLi{
+        display: block !important;
+        margin: 2% !important;
+        width: 18%;
+        padding: 20px !important;
+        flex-grow: 1;
+        div.logo{
+            display: none;
+        }
+    }
+}

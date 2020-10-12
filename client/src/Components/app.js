@@ -5,9 +5,8 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import FormPage from "./formPage";
-import JobPage from "./jobPage";
-import SavedJobsPage from "./SavedJobsPage";
+import JobPage from "./mainPage/jobPage";
+import SavedJobsPage from './savedPage/SavedJobsPage'
 import {MySearchContext} from './searchBarContext';
 
 class App extends React.Component{
@@ -15,7 +14,9 @@ class App extends React.Component{
   constructor(props){
     super(props)
     this.isDownloading = false;
+    
     this.state = {
+        layout : ['',''],
         initialResults:[],
         jobResults: [],
         searchValue:'',
@@ -27,6 +28,7 @@ class App extends React.Component{
         loadReed: true,
         loadJobSite: true,
         sortBy: 'id',
+        searchBy: 'R',
         info: '',
         extraParametersInfo: {
           LinkedIn: {
@@ -56,41 +58,6 @@ class App extends React.Component{
         widthResults: 'show',
     }
   }
-  compare=(previousProps, newProps)=>{
-    //test if same object
-    if(previousProps === newProps){
-        return true
-    }
-    //tests if bother props objs are not null and are objects
-    if (typeof previousProps !== 'object' || previousProps === null ||
-    typeof newProps !== 'object' || newProps === null) {
-    return false;
-    }
-
-    //Creates array of keys from each props so we can test if they are the same length
-    //and has the same values in the for loop
-
-    const oldPropsKeys = Object.keys(previousProps);
-    const newPropsKeys = Object.keys(newProps);
-
-    if (oldPropsKeys.length !== newPropsKeys.length) {
-        return false;
-    }
-    
-    const newPropsHasOwnProperty = hasOwnProperty.bind(newProps);
-    for (var i = 0; i < oldPropsKeys.length; i++) {
-        if (!newPropsHasOwnProperty(oldPropsKeys[i]) || previousProps[oldPropsKeys[i]] !== newProps[oldPropsKeys[i]]) {
-        return false;
-        }
-    }
-    return true;
-}
-
-
-shouldComponentUpdate = (nextProps, nextState)=>{
-    if(this.isDownloading)return true
-    return !(this.compare(this.props, nextProps))  || !(this.compare(this.state, nextState))
-}
 
 
 loadJobs= (searchValue, locationValue) =>{
@@ -109,8 +76,8 @@ loadJobs= (searchValue, locationValue) =>{
     url.searchParams.set('linked', this.state.loadLinkedIn);
     url.searchParams.set('reed', this.state.loadReed);
     url.searchParams.set('jobsite', this.state.loadJobSite);
-    if(this.state.sortBy !== 'id'){
-      url.searchParams.set('sortby', this.state.sortBy);
+    if(this.state.sortBy !== 'R'){
+      url.searchParams.set('sortby', this.state.searchBy);
     }
     for(const key in this.state.extraParametersInfo){
       if(this.state[`load${key}`]=== true){
@@ -131,23 +98,25 @@ loadJobs= (searchValue, locationValue) =>{
         loadBarProgress:1,
         info: 'sending...'
       })
+      //closes the connection and tells the user that the connection
+      // couldnt connect if no response from the server in 12seconds
       setTimeout(()=>{
-      if(loaded === false){
-        console.log('error loading')
-        this.setState({
-          info:'Connection Error, Closing connection',
-          displayLoadbar: 'none',
-        })
-        sse.removeEventListener('error', event => {
-          whatSitesToLoad[`${event.data}`]=true;
-          console.log(`server could not load ${event.data}`)
-        })
-        sse.removeEventListener('newData', e=> newData(e));
-        sse.removeEventListener('close', e=> closeData(e))
-        sse.close()
-        
-      }
-    },10000)
+        if(loaded === false){
+          console.log('error loading')
+          this.setState({
+            info:'Connection Error, Closing connection',
+            displayLoadbar: 'none',
+          })
+          sse.removeEventListener('error', event => {
+            whatSitesToLoad[`${event.data}`]=true;
+            console.log(`server could not load ${event.data}`)
+          })
+          sse.removeEventListener('newData', e=> newData(e));
+          sse.removeEventListener('close', e=> closeData(e))
+          sse.close()
+          
+        }
+      },12000)
 
     sse.onopen = ()=> {
         console.log("Sse connection opened");
@@ -193,9 +162,9 @@ loadJobs= (searchValue, locationValue) =>{
           this.setState({
               loadBarProgress: 100,
               displayLoadbar: 'none',
-              info: 'Scraping complete'
+              info: 'Scraping complete',
+              jobResults: this.quickSortData(this.state.jobResults, this.state.sortBy)
           })
-          this.quickSortData(this.state.jobResults, this.state.sortBy)
         }
         sse.removeEventListener('error', event => {
           whatSitesToLoad[`${event.data}`]=true;
@@ -316,6 +285,11 @@ loadJobs= (searchValue, locationValue) =>{
             console.log(searchValue, locationValue)
             this.loadJobs(searchValue, locationValue);
           },
+          searchBy: value =>{
+            this.setState({
+              searchBy: value.target.value,
+            })
+          },
           sortBy: value =>{
             this.setState({
               sortBy: value.target.value,
@@ -326,6 +300,12 @@ loadJobs= (searchValue, locationValue) =>{
           loadIndeed: value =>this.setState({loadIndeed: value.target.checked}),
           loadJobSite: value =>this.setState({loadJobSite: value.target.checked}),
           loadReed: value =>this.setState({loadReed: value.target.checked}),
+          changeLayout: (colLayout, rowLayout)=>{
+            console.log(`changing Layout ${colLayout} ${rowLayout}`);
+            this.setState({layout: [colLayout, rowLayout]}, ()=>{
+              console.log(`layout changed ${this.state.layout}`)
+            })
+          }
         }}>
           <Switch>
 
@@ -338,6 +318,7 @@ loadJobs= (searchValue, locationValue) =>{
                jobResults = {this.state.jobResults}
                changeExtraParametersInfo={this.changeExtraParametersInfo}
                widthResults= {this.state.widthResults}
+               layout= {this.state.layout}
                />
             </Route>
           </Switch>

@@ -3,7 +3,6 @@
     background-color: white;
     box-shadow: 1px 1px 5px 0px hsl(180, 8%, 52%);
     border-radius: 5px;
-    //width: fit-content;
     padding: 20px;
     display: grid;
     grid-template-columns: auto;
@@ -12,7 +11,8 @@
     margin: auto;
     margin-top: 20px;
     margin-bottom: 20px;
-
+    height: 67vh;
+    overflow: auto;
     
     input{
         border: 1px solid grey;
@@ -89,22 +89,23 @@ label{
 }
 
 #frontPage{
-    max-width: 20%;
+    max-width: 25%;
     display: inline-grid;
     height: max-content;
     position: sticky;
     transition: all 1s;
     z-index: 1;
     top: 22%;
-    overflow: auto;
-    height: 73%;
+    overflow: hidden;
+    max-height: 73%;
 }
 
 .listOfJobs {
     display: inline-grid;
-    max-width: 80%;
+    max-width: 75%;
     margin-left: 0%;
     transition: width 1s;
+    margin-bottom: 100px;
 }
 .select{
     position: sticky;
@@ -120,6 +121,7 @@ label{
         max-width: 100%;
         margin-top: 0px;
         margin-left: 0;
+       
     }
     #frontPage.inline-block{
         width: 100% !important;
@@ -182,7 +184,7 @@ body, html{
 }
 
 .inline-block{
-    width: 100% !important;
+    width: auto !important;
 }
 #frontPage.none{
     width: 0%;
@@ -190,7 +192,7 @@ body, html{
 }
 
 .hide{
- max-width: 80%;
+ max-width: 75%;
 
     @media(max-width: 1200px){
         max-width: 100%;
@@ -218,4 +220,138 @@ body, html{
 
 #root{
     display: contents;
+}
+
+
+.dropdown-check-list {
+    display: inline-block;
+    position: relative;
+    background-color: white;
+    outline: none;
+  }
+  
+  .dropdown-check-list .anchor, .layout {
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+    padding: 5px 50px 5px 10px;
+    border: 1px solid #ccc;
+  }
+  
+  .dropdown-check-list .anchor:after {
+    position: absolute;
+    content: "";
+    border-left: 2px solid black;
+    border-top: 2px solid black;
+    padding: 5px;
+    right: 10px;
+    top: 20%;
+    -moz-transform: rotate(-135deg);
+    -ms-transform: rotate(-135deg);
+    -o-transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+    transform: rotate(-135deg);
+  }
+  
+  .dropdown-check-list .anchor:active:after {
+    right: 8px;
+    top: 21%;
+  }
+  
+  .dropdown-check-list ul.items {
+    padding: 2px;
+    display: none;
+    margin: 0;
+    border: 1px solid #ccc;
+    border-top: none;
+  }
+  
+  .dropdown-check-list ul.items li {
+    list-style: none;
+  }
+  
+  .dropdown-check-list.visible .anchor {
+    color: #7b8e8e;
+  }
+  
+  .dropdown-check-list.visible .items {
+    text-align: left;
+    display: block;
+    position: absolute;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: white;
+    z-index: 2;
+
+  }
+
+#filterSearchBar{
+    width: auto;
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+    padding: 5px 50px 5px 10px;
+    border: 1px solid #ccc;
+}
+
+#searchBy{
+    width: auto;
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+    border: 1px solid #ccc;
+    padding: 5px 0px 5px 0px;
+}
+
+#savedFilter{
+    text-align: center;
+}
+
+.layout{
+    height: 30px;
+    margin: 1px;
+    padding: 5px;
+    margin: 0px 10px 0px;
+    font-size: inherit;
+    outline: none;
+}
+
+.layout:active{
+    color: #7b8e8e;
+}
+
+
+    .layout{
+        display: none;
+    }
+
+
+@media(min-width: 1000px){
+    .colSmallUl{
+    display: inline-flex;
+    flex-wrap: wrap;
+    }
+    .layout{
+        display: inline-block;
+    }
+    .colMedLi{
+        display: block !important;
+        margin: 2% !important;
+        width: 27%;
+        padding: 20px !important;
+        flex-grow: 1;
+        div.logo{
+            display: none;
+        }
+    }
+    .colSmallLi{
+        display: block !important;
+        margin: 2% !important;
+        width: 18%;
+        padding: 20px !important;
+        flex-grow: 1;
+        div.logo{
+            display: none;
+        }
+    }
 }

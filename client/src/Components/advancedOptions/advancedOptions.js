@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
-import './formStyles.scss'
-import LoadBar from './LoadBar'
-import { MySearchContext } from './searchBarContext'
+import './advancedOptions.scss'
+import { MySearchContext } from '../searchBarContext'
 
 
 class FormPage extends Component {
@@ -21,8 +20,9 @@ class FormPage extends Component {
     }
    changeExtraParameters=(e)=>{
         const value = e.target.value
-        const location = e.target.parentElement.parentElement.childNodes[0].textContent;
+        const location = e.target.parentElement.parentElement.parentElement.childNodes[0].childNodes[0].textContent;
         const parameter = e.target.getAttribute('name');
+        console.log(location, parameter, value)
        this.props.changeExtraParametersInfo(location, parameter, value)
    }
 
@@ -74,7 +74,7 @@ class FormPage extends Component {
                             <h3>Advance search options</h3>
                                   
                             <label htmlFor="searchBy">Search Website by:
-                                <select name="options" id="searchBy" onChange={context.sortBy} value={context.state.sortBy}>
+                                <select name="options" id="searchBy" onChange={context.searchBy} value={context.state.searchBy}>
                                     <option value="R">Most Relevant</option>
                                     <option value="DD">Most Recent</option>
                                 </select>

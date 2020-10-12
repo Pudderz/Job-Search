@@ -1,7 +1,7 @@
 import React from 'react';
 import './jobBlock.scss';
-import Link from './link'
-import SiteLink from './siteLink';
+import Link from '../jobLink'
+import SiteLink from '../siteLink';
 import {get, set, del} from 'idb-keyval';
 
 class JobBlock extends React.Component{
@@ -15,31 +15,30 @@ class JobBlock extends React.Component{
     // used this site as a reference: 
     //https://developmentarc.gitbooks.io/react-indepth/content/life_cycle/update/using_should_component_update.html
     
-    compare=(previousProps, newProps)=>{
+    compare=(previous, next) => {
         //test if same object
-        if(previousProps === newProps){
-            return true
+        if (previous === next) {
+            return true;
         }
         //tests if bother props objs are not null and are objects
-        if (typeof previousProps !== 'object' || previousProps === null ||
-        typeof newProps !== 'object' || newProps === null) {
-        return false;
+        if (typeof previous !== 'object' || previous === null ||
+            typeof next !== 'object' || next === null) {
+            return false;
         }
 
         //Creates array of keys from each props so we can test if they are the same length
         //and has the same values in the for loop
-
-        const oldPropsKeys = Object.keys(previousProps);
-        const newPropsKeys = Object.keys(newProps);
+        const oldPropsKeys = Object.keys(previous);
+        const newPropsKeys = Object.keys(next);
 
         if (oldPropsKeys.length !== newPropsKeys.length) {
             return false;
         }
-        
-        const newPropsHasOwnProperty = hasOwnProperty.bind(newProps);
+
+        const newPropsHasOwnProperty = hasOwnProperty.bind(next);
         for (var i = 0; i < oldPropsKeys.length; i++) {
-            if (!newPropsHasOwnProperty(oldPropsKeys[i]) || previousProps[oldPropsKeys[i]] !== newProps[oldPropsKeys[i]]) {
-            return false;
+            if (!newPropsHasOwnProperty(oldPropsKeys[i]) || previous[oldPropsKeys[i]] !== next[oldPropsKeys[i]]) {
+                return false;
             }
         }
         return true;
@@ -62,10 +61,16 @@ class JobBlock extends React.Component{
         
     }
     saveJob = async () =>{
-        set(`${this.props.jobDetails.company}_${this.props.jobDetails.position}`, this.props.jobDetails)
+        const jobDate = new Date();
+        jobDate.setDate(jobDate.getDate()-this.props.jobDetails.time);
+        set(`${this.props.jobDetails.company}_${this.props.jobDetails.position}`, {
+            ...this.props.jobDetails,
+            time: jobDate.getTime(),
+            postedAt: jobDate.toISOString().split('T')[0],
+        })
             .then(()=> {
                 this.setState({saved: true}, ()=> console.log('saved'))})
-            .catch((e)=>{console.log('error')})
+            .catch((e)=>{console.log(`error ${e}`)})
     }
     removeJob = async () =>{
         del(`${this.props.jobDetails.company}_${this.props.jobDetails.position}`)
@@ -78,9 +83,8 @@ class JobBlock extends React.Component{
     }
     render(){
         return(
-            <li className={`item`}>
+            <li className={`item ${this.props.layout}`}>
                 <div className="logo">
-                    {/* <Logo className="logoImage" logo={this.props.jobDetails.logo} /> */}
                 </div>
   
                 <div className="grid">
