@@ -168,7 +168,7 @@ class FormPage extends Component {
                                         </select>
                                     </label>
                                     <label>
-                                        Minimum Salary: £{context.state.extraParametersInfo.Indeed.Sal}
+                                        Minimum Salary: {context.state.extraParametersInfo.Indeed.Sal}
                                         <input name="Sal" type="range" min={10000} max={100000} step={1000} onChange={this.changeExtraParameters} />
                                     </label>
                                 </div>
@@ -214,7 +214,7 @@ class FormPage extends Component {
                                     </select>
                                 </label>
                                 <label>
-                                    Minimum Salary: £{context.state.extraParametersInfo.JobSite.Sal}
+                                    Minimum Salary: {context.state.extraParametersInfo.JobSite.Sal}
                                     <input name="Sal" type="range" min={10000} max={100000} step={10000} onChange={this.changeExtraParameters}/>
                                 </label>
                                 </div>
@@ -263,20 +263,17 @@ class FormPage extends Component {
                                     </select>
                                 </label>
                                 <label>
-                                    Minimum Salary: £{context.state.extraParametersInfo.Reed.Sal}
-                                    <input name="Sal" type="range" min={10000} max={100000} step={2000} onChange={this.changeExtraParameters}/>
+                                    Minimum Salary: {context.state.extraParametersInfo.Reed.Sal}
+                                    
                                 </label>
+                                    <input name="Sal" type="range" min={10000} max={100000} step={2000} onChange={this.changeExtraParameters}/>
                                 </div>
                                 
                             </div>
                         </div>
 
-                           
-                            
-
-
-
-                            <button type="submit" className="clear" id="formSubmit" onClick={context.resetOptions}>reset</button>
+   
+                            <button type="submit" className="clear" id="formSubmit" onClick={context.resetOptions}>Reset</button>
                         </form>    
                     </div>
                     
