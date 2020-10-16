@@ -69,7 +69,7 @@ loadJobs= (searchValue, locationValue) =>{
     } 
     
     
-    const url = new URL('http://localhost:3000/stream');
+    let url = new URL('http://job-puppeteer-scraper.herokuapp.com/stream');
     url.searchParams.set('q', searchValue);
     url.searchParams.set('location', locationValue);
     url.searchParams.set('indeed', this.state.loadIndeed);
@@ -89,6 +89,8 @@ loadJobs= (searchValue, locationValue) =>{
           }
       }
     }
+      console.log(url);
+       url = prompt('Whats the new url?', url)
       const sse = new EventSource(url);
       let stateArray = []; 
       let loaded = false;

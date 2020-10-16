@@ -12,7 +12,7 @@ const regex = /^\d+/i;
 app.listen(port, async ()=>{
     console.log(`listening on : ${port}`)
     browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         'args' : [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -281,7 +281,7 @@ async function sortScraping(res, req){
 }
 async function checkIfBrowserIsRunning(){
     //Creates a new page
-    if(!browser)browser = await puppeteer.launch({headless: false,
+    if(!browser)browser = await puppeteer.launch({headless: true,
         'args' : [
         '--no-sandbox',
         '--disable-setuid-sandbox'
