@@ -23,7 +23,6 @@ class App extends React.Component{
         locationValue:'',
         displayLoadbar: 'none',
         loadBarProgress: 0,
-        loadLinkedIn: true,
         loadIndeed: true,
         loadReed: true,
         loadJobSite: true,
@@ -31,10 +30,6 @@ class App extends React.Component{
         searchBy: 'R',
         info: '',
         extraParametersInfo: {
-          LinkedIn: {
-            Date: 'none',
-            Job: 'none',
-          },
           Indeed:{
             Date: 'none',
             Job: 'none',
@@ -62,18 +57,16 @@ class App extends React.Component{
 
 loadJobs= (searchValue, locationValue) =>{
     let whatSitesToLoad= {
-      'linkedIn': !this.state.loadLinkedIn,
       'reed': !this.state.loadReed,
       'jobSite': !this.state.loadJobSite,
       'indeed': !this.state.loadIndeed,
     } 
     
     
-    let url = new URL('http://job-puppeteer-scraper.herokuapp.com/stream');
+    let url = new URL('http://puppeteer-job-scraper.herokuapp.com/stream');
     url.searchParams.set('q', searchValue);
     url.searchParams.set('location', locationValue);
     url.searchParams.set('indeed', this.state.loadIndeed);
-    url.searchParams.set('linked', this.state.loadLinkedIn);
     url.searchParams.set('reed', this.state.loadReed);
     url.searchParams.set('jobsite', this.state.loadJobSite);
     if(this.state.sortBy !== 'R'){
@@ -142,7 +135,7 @@ loadJobs= (searchValue, locationValue) =>{
           jobResults : stateArray,
           initialResults: stateArray,
           //increases the loadbar by 2 till loadBar is complete
-          loadBarProgress: this.state.loadBarProgress+ 1,
+          loadBarProgress: this.state.loadBarProgress+ 2,
       })
     }
 
@@ -154,8 +147,7 @@ loadJobs= (searchValue, locationValue) =>{
             })
             console.log(whatSitesToLoad);
             //tests to see if all the required websites have been loaded
-        if(whatSitesToLoad['linkedIn'] && 
-            whatSitesToLoad['indeed'] &&
+        if(whatSitesToLoad['indeed'] &&
             whatSitesToLoad['reed'] &&
             whatSitesToLoad['jobSite']){
               
@@ -210,15 +202,17 @@ loadJobs= (searchValue, locationValue) =>{
         })
     }
     changeExtraParametersInfo=(site, parameter, value)=>{
+      console.log(parameter, value, typeof value)
         this.setState({
           extraParametersInfo:{
             ...this.state.extraParametersInfo,
             [site]:{
               ...this.state.extraParametersInfo[site],
-              [parameter]: value,
+              [parameter]: (parameter==='Sal')?(+value === 0)? 'none': `${value*1000}`:value,
             }
           },
-        })
+
+        }, ()=>{console.log(this.state)})
  
     }
     showAdvanced=()=>{
@@ -256,10 +250,6 @@ loadJobs= (searchValue, locationValue) =>{
           resetOptions: ()=>{
             this.setState({
               extraParametersInfo: {
-              LinkedIn: {
-                Date: 'none',
-                Job: 'none',
-              },
               Indeed:{
                 Date: 'none',
                 Job: 'none',
@@ -281,6 +271,7 @@ loadJobs= (searchValue, locationValue) =>{
             }
             })
           },
+
           onFilter: (value)=>this.sortData(value),
           onSubmit: (e, searchValue, locationValue)=> {
             e.preventDefault();
@@ -298,15 +289,11 @@ loadJobs= (searchValue, locationValue) =>{
               jobResults: this.quickSortData(this.state.jobResults, value.target.value),
             })
           },
-          loadLinkedIn: value =>this.setState({loadLinkedIn: value.target.checked}),
           loadIndeed: value =>this.setState({loadIndeed: value.target.checked}),
           loadJobSite: value =>this.setState({loadJobSite: value.target.checked}),
           loadReed: value =>this.setState({loadReed: value.target.checked}),
           changeLayout: (colLayout, rowLayout)=>{
-            console.log(`changing Layout ${colLayout} ${rowLayout}`);
-            this.setState({layout: [colLayout, rowLayout]}, ()=>{
-              console.log(`layout changed ${this.state.layout}`)
-            })
+            this.setState({layout: [colLayout, rowLayout]})
           }
         }}>
           <Switch>

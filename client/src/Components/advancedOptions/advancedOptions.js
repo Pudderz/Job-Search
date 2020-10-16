@@ -8,17 +8,16 @@ class FormPage extends Component {
         super()
         this.state={
             styleClass:"",
-            displayLinked: 'none',
             showIndeed: 'none',
             showJobsite: 'none',
             showReed: 'none',
             indeedButton: 'Show',
             reedButton: 'Show',
-            linkedButton: 'Show',
             jobSiteButton: 'Show',
+            
         }
     }
-   changeExtraParameters=(e)=>{
+   changeExtraParameters=e=>{
         const value = e.target.value
         const location = e.target.parentElement.parentElement.parentElement.childNodes[0].childNodes[0].textContent;
         const parameter = e.target.getAttribute('name');
@@ -31,12 +30,6 @@ class FormPage extends Component {
            showIndeed: (this.state.showIndeed==='block')?'none': 'block',
            indeedButton :(this.state.showIndeed==='block')? 'Show': 'Hide',
        })
-   }
-   showLinked=()=>{
-        this.setState({
-            displayLinked: (this.state.displayLinked==='block')?'none': 'block',
-            linkedButton :(this.state.displayLinked==='block')? 'Show': 'Hide',
-        })
    }
    showReed=()=>{
         this.setState({
@@ -83,9 +76,6 @@ class FormPage extends Component {
                             <div className="whichSite card">
                                 
                                 
-                                <label htmlFor="linkedIn">LinkedIn: 
-                                <input type="checkBox" name="websites" id="linkedIn" value="LinkedIn" onChange={e=>{context.loadLinkedIn(e); this.showExtra(e)}} checked={context.state.loadLinkedIn}/>
-                                </label>
                                 <label htmlFor="indeed">Indeed:
                                 <input type="checkBox" name="websites" id="indeed" value="Indeed" onChange={e=>{context.loadIndeed(e); this.showExtra(e)}} checked={context.state.loadIndeed}/>
                                 </label>
@@ -99,36 +89,7 @@ class FormPage extends Component {
                             </div>
                             <h2>Extra Parameters</h2>
                         <div className="options extraParameters">
-                             <div className="card"  style={{'display': this.state.LinkedIn}}>
-                             <div className="extraParaheader" >
-                                <h5>LinkedIn</h5>
-                <button className="clear" onClick={this.showLinked}>{this.state.linkedButton}</button>
-                            </div>
-                                
-                                <div className="extraDetails" style={{'display': this.state.displayLinked}}>
-                                    <label>
-                                    DatePosted:
-                                    <select name="Date" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.LinkedIn.Date}>
-                                        <option value="none">All</option>
-                                        <option value="1">Past 24 hours</option>
-                                        <option value="1%2C2">Past week</option>
-                                        <option value="%2C2%2C3%2C4">Past month</option>
-                                    </select>
-                                    </label>
-                                    <label>
-                                    Job Type:
-                                    <select name="Job" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.LinkedIn.Job}>
-                                        <option value="none">All</option>
-                                        <option value="T">Temporary</option>
-                                        <option value="F">FullTime</option>
-                                        <option value="P">Part-Time</option>
-                                        <option value="C">Contract</option>
-                                        <option value="I">Internship</option>
-                                    </select>
-                                    </label>
-                                </div>
-                                
-                            </div>
+                             
                             <div className="card" style={{'display': this.state.Indeed}}>
                                 <div className="extraParaheader">
                                     <h5>Indeed</h5>
@@ -169,7 +130,9 @@ class FormPage extends Component {
                                     </label>
                                     <label>
                                         Minimum Salary: {context.state.extraParametersInfo.Indeed.Sal}
-                                        <input name="Sal" type="range" min={10000} max={100000} step={1000} onChange={this.changeExtraParameters} />
+                                        <input name="Sal" type="range" min={0} max={110} step={1} 
+                                            value={(context.state.extraParametersInfo.Indeed.Sal==='none')? 0: +context.state.extraParametersInfo.Indeed.Sal/1000}
+                                            onChange={this.changeExtraParameters} />
                                     </label>
                                 </div>
                                 
@@ -204,7 +167,7 @@ class FormPage extends Component {
                                 </label>
                                 <label>
                                     Radius:
-                                    <select name="Rad" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.JobSite.Job}>
+                                    <select name="Rad" onChange={this.changeExtraParameters} value={context.state.extraParametersInfo.JobSite.Rad}>
                                     <   option value="none">All</option>
                                         <option value="0">0</option>
                                         <option value="5">5</option>
@@ -215,7 +178,9 @@ class FormPage extends Component {
                                 </label>
                                 <label>
                                     Minimum Salary: {context.state.extraParametersInfo.JobSite.Sal}
-                                    <input name="Sal" type="range" min={10000} max={100000} step={10000} onChange={this.changeExtraParameters}/>
+                                    <input name="Sal" type="range" min={0} max={110} step={10} 
+                                        value={(context.state.extraParametersInfo.JobSite.Sal==='none')? 0: +context.state.extraParametersInfo.JobSite.Sal/1000}
+                                        onChange={this.changeExtraParameters}/>
                                 </label>
                                 </div>
                                
@@ -264,9 +229,11 @@ class FormPage extends Component {
                                 </label>
                                 <label>
                                     Minimum Salary: {context.state.extraParametersInfo.Reed.Sal}
-                                    
+                                    <input name="Sal" type="range" min={0} max={110} step={2} 
+                                        value={(context.state.extraParametersInfo.Reed.Sal==='none')? 0: +context.state.extraParametersInfo.Reed.Sal/1000}
+                                        onChange={this.changeExtraParameters}/>
                                 </label>
-                                    <input name="Sal" type="range" min={10000} max={100000} step={2000} onChange={this.changeExtraParameters}/>
+                                    
                                 </div>
                                 
                             </div>

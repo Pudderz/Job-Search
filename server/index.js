@@ -3,22 +3,13 @@ const express = require('express');
 //dotenv allows us to declare environment variables in a .env file
 require("dotenv").config();
 const path = require('path');
+const { resolve } = require('path');
 const port = process.env.PORT || 8080;
 const month= ["January","February","March","April","May","June","July",
             "August","September","October","November","December"];
-let browser;
 const app = express()
 const regex = /^\d+/i;
-app.listen(port, async ()=>{
-    console.log(`listening on : ${port}`)
-    browser = await puppeteer.launch({
-        headless: true,
-        'args' : [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        ]
-    });
-})
+app.listen(port);
 
 
 app.use(express.static('public'))
@@ -31,7 +22,7 @@ app.get('/stream', function(req, res) {
     "Access-Control-Allow-Origin": "*",
 
   })
-  console.log('Scraping started')
+  console.log('Scraping started');
   sortScraping(res, req);
 })
 
@@ -69,7 +60,7 @@ function timeValue(postedAt){
     return time;
 }
 
-const reedTimeValue=(postedAt)=>{
+const reedTimeValue=postedAt=>{
     let firstWord = postedAt.match(/[a-z,A-Z]+/i);
     const numberMonth = month.indexOf(firstWord[0]);
     if(numberMonth !== -1){
@@ -86,15 +77,15 @@ const reedTimeValue=(postedAt)=>{
     }
 }
 
-async function scraper(res, site, url, callback, smallSizeQuestion, showCSS, waitForSelector, findItems, startingKey){
-
+async function scraper(res, site,browser,completeCallback, url, callback, smallSizeQuestion, showCSS, waitForSelector, findItems, startingKey){
+    console.log('scraper function running');
     const page = await browser.newPage();
     let key=startingKey;
     let numOfErrors = 0;
     try{
         if(smallSizeQuestion){
-             //I view the page in a phone viewport as only the phone view provides brief
-        //snippets in linkedIn while the standard view does not
+            //I view the page in a phone viewport as only the phone view provides brief
+            //snippets in linkedIn while the standard view does not
         const iPhone = puppeteer.devices['iPhone 6'];
         await page.emulate(iPhone);
         }else{
@@ -136,8 +127,9 @@ async function scraper(res, site, url, callback, smallSizeQuestion, showCSS, wai
         res.write(`event: error\ndata: ${site}\n\n`);
     }finally{
         res.write(`event: close\ndata: ${site}\n\n`);
-        await page.close();
+         await page.close();
         console.log(`${site} Page finished and closed, ${key-numOfErrors-startingKey}/${key-startingKey}  scraped`);
+        completeCallback(site);    
     }
 }
 
@@ -207,7 +199,6 @@ async function reed(results, key){
             }
 }
 async function jobsite(results, key, page){
-    
             const divs = await results.$('div > div');
             const jobTitle = await divs.$('div > div > div.job-title > a');
             const detailsDiv = await divs.$(' div.detail-body');
@@ -249,52 +240,39 @@ async function jobsite(results, key, page){
             }     
         
 }
-async function linkedIn(results, linkedInKey){
-                const div = await results.$('div.job-result-card__contents');
-                const position = await div.$eval('h3' , node=> node.textContent);
-                const summary = await div.$eval('div > p', node=> node.textContent);
-                const postedAt = await div.$eval('div > time', node=> node.textContent);
-                const moreInfo = await results.$eval('a.result-card__full-card-link', node=> node.getAttribute('href'));
-            
-                const company = await div.$eval('h4', node=> node.textContent)
-                const location = await div.$eval('div > span', node=> node.textContent )
-                
-                const time = timeValue(postedAt);
 
-                return {
-                    'position': position,
-                    'postedAt': postedAt,
-                    'location': location,
-                    'company': company,
-                    'summary': summary,
-                    'link': moreInfo,
-                    'id': linkedInKey,
-                    'site': 'linkedIn',
-                    'time': time,
-                };
-       
-}
 
-async function sortScraping(res, req){
-    await checkIfBrowserIsRunning();
-    scrapeJobs(res, req)
-}
-async function checkIfBrowserIsRunning(){
-    //Creates a new page
-    if(!browser)browser = await puppeteer.launch({headless: true,
+
+async function createbrowser(){
+    console.log('opening browser')
+    return await puppeteer.launch({headless: true,
         'args' : [
         '--no-sandbox',
         '--disable-setuid-sandbox'
         ]})
 }
-function  scrapeJobs(res, req) {
+function  scrapeJobs(res, req, browser) {
+    const isLoaded={
+        'indeed':(req.query.indeed !== 'true'),
+        'reed':(req.query.reed !== 'true'),
+        'jobSite':(req.query.jobsite !== 'true'),
+    }
     
+    const isComplete= async(site)=>{
+        
+        isLoaded[site] = true;
+        if(isLoaded['indeed']&&isLoaded['reed']&& isLoaded['jobSite']){
+           await browser.close();
+        }
+    }
+
     const searchQuery = req.query.q; 
     const location = req.query.location;
     const sortBy = req.query.sortBy;
-
-
-    if(req.query.indeed === 'true'){ 
+    console.log('starting');
+   
+    if(!isLoaded['indeed']){ 
+        console.log('indeed running');
         const url = new URL('https://www.indeed.co.uk/jobs');
         if(sortBy =='DD')url.searchParams.set('sort', 'date');
         if(req.query.iJob)url.searchParams.set('jt', req.query.iJob);
@@ -303,21 +281,13 @@ function  scrapeJobs(res, req) {
         if(req.query.iSal){
             url.searchParams.set('q', `${searchQuery}+${req.query.iSal}`);
         }else url.searchParams.set('q', `${searchQuery}`);
-        scraper(res,'indeed', url, indeed, false, false, 'div.jobsearch-SerpJobCard','div.jobsearch-SerpJobCard', 0 );
-    }
 
-    if(req.query.linked === 'true'){
-        
-        const url = new URL(`https://www.linkedin.com/jobs/search`);
-        url.searchParams.set('keywords', searchQuery);
-        url.searchParams.set('location', location);
-        if(sortBy =='DD')url.searchParams.set('sortBy', 'DD');
-        if(req.query.lJob )url.searchParams.set('f_JT', req.query.lJob);
-        if(req.query.lDate )url.searchParams.set('f_TP', decodeURIComponent(req.query.lDate));
-        scraper(res,'linkedIn', url, linkedIn, true, false, '.job-result-card', 'ul.jobs-search__results-list > li', 19);
+        scraper(res,'indeed',browser,isComplete, url, indeed, false, false, 'div.jobsearch-SerpJobCard','div.jobsearch-SerpJobCard', 0 );
     }
+        
     
-    if(req.query.jobsite === 'true'){
+    
+    if(!isLoaded['jobSite']){
         const jobType = (req.query.jJob)? `${req.query.jJob}/` : '';
 
         const url = new URL(`https://www.jobsite.co.uk/jobs/${jobType}${searchQuery}/in-${location}`);
@@ -329,11 +299,11 @@ function  scrapeJobs(res, req) {
             url.searchParams.set('salary', req.query.jRad);
             url.searchParams.set('salarytypeid', '1');
         }
-        //const jobSiteUrl = `https://www.jobsite.co.uk/jobs/${jobType}${searchQuery}/in-${location}?${sort}${datePosted}${salary}${radius}`;
-        scraper(res, 'jobSite', url, jobsite, true, true,'div.job','div.job.twinpeaks', 44 )
+        scraper(res, 'jobSite',browser,isComplete, url, jobsite, true, true,'div.job','div.job.twinpeaks', 16 );
     }
-    
-    if(req.query.reed === 'true'){
+        
+    if(!isLoaded['reed']){
+        console.log('reed true')
         let sort=(sortBy =='DD')?'&sortby=DisplayDate' :'';
         const url = new URL(`https://www.reed.co.uk/jobs/${searchQuery}-jobs-in-${location}${sort}`);
         if(req.query.rJob )url.searchParams.set(req.query.rJob, 'true');
@@ -342,10 +312,16 @@ function  scrapeJobs(res, req) {
         if(req.query.rDate )url.searchParams.set('datecreatedoffset',req.query.rDate);
 
         if(sortBy =='DD')url.searchParams.set('sort');
-        //const reedUrl = `https://www.reed.co.uk/jobs/${searchQuery}-jobs-in-${location}?${salary}${radius}${jobType}${datePosted}${sort}`;
-        scraper(res, 'reed', url, reed, true, false, 'article.job-result', 'article.job-result', 65);
-        //scrapeReed(res, reedUrl)
+        scraper(res, 'reed',browser,isComplete, url, reed, true, false, 'article.job-result', 'article.job-result', 37);
     }
+    console.log(isLoaded)   
+    console.log('end')
+    
+}
+async function sortScraping(res, req){
+    const browser = await createbrowser();
+    console.log(browser);
+    await scrapeJobs(res, req, browser);
 }
 
 app.get('*', function(req, res) {

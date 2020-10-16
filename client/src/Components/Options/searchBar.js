@@ -1,8 +1,8 @@
-import React, { Component , useRef, useEffect, useState} from 'react';
+import React, { useEffect, useState, useRef} from 'react';
 import './searchStyles.scss'
 import {MySearchContext} from '../searchBarContext'
  export const Search = (props) => {
-    let _isMounted = false
+    const isMountedRef = useRef(false);
     // constructor(props){
     //     super(props)
     //     this.state={
@@ -14,11 +14,11 @@ import {MySearchContext} from '../searchBarContext'
     const[locationState, setLocationState] = useState({value: ''})
 
     useEffect(() => {
-        _isMounted = true;
+        isMountedRef.current = true;
         let previousYPos = window.pageYOffset;
         window.addEventListener('scroll', e=>{
             let currentYPos = window.pageYOffset;
-            if(_isMounted){
+            if(isMountedRef.current){
                 if(previousYPos > currentYPos){
                 setState({
                     top: '1%',
@@ -33,7 +33,7 @@ import {MySearchContext} from '../searchBarContext'
             previousYPos = currentYPos;
         })
         return () => {
-            _isMounted =false
+            isMountedRef.current = false;
         }
     }, [])
 

@@ -33,7 +33,7 @@
 
     @media(max-width: 1200px){
         max-width: 100%;
-        display: none;
+        display: none !important;
         
     }
     & > div{
