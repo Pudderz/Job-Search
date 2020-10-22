@@ -69,7 +69,7 @@ loadJobs= (searchValue, locationValue) =>{
     } 
     
     
-    const url = new URL('http://localhost:3000/stream');
+    const url = new URL('http://localhost:8080/stream');
     url.searchParams.set('q', searchValue);
     url.searchParams.set('location', locationValue);
     url.searchParams.set('indeed', this.state.loadIndeed);

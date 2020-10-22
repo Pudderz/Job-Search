@@ -1,33 +1,27 @@
 # Job-Scrapper project
 
-_JobScrapper website and server using react and puppeteer_ 
+_JobScrapper website and server using React and Puppeteer_ 
 
-![main page](./READMEImages/homePage.png)
+**[Demo](http://puppeteer-job-scraper.herokuapp.com/)** -
+LinkedIn is not available in the demo and is currently only working on http not https
+
 ## Summary
-This project scrapes the first page of results in job websites such as reed, jobsite, linkedin and indeed. It does this by using a nodejs server and scraping information from each site with puppeteer.
+This project scrapes the first page of results in job websites such as Reed, Jobsite, LinkedIn, and indeed. It does this with a Node.js server and scraping information from each site with Puppeteer.
 
-**[Demo]()** 
+I created this as I enjoyed making the job filter design from one of my [GitHub repos](https://github.com/Pudderz/Job-listings) ([frontendmentor.io challenge](https://www.frontendmentor.io/challenges/job-listings-with-filtering-ivstIPCt)), to get as close to a design specification as possible, and wanted to build onto it. I was not able to get the APIs for each job website, so I thought this would be a fun opportunity to learn about Puppeteer and how to scrape sites for information. 
 
-I created this as I enjoyed making the job filter design challenge from one of my [github repos](https://github.com/Pudderz/Job-listings) ([frontendmentor.io challenge](https://www.frontendmentor.io/challenges/job-listings-with-filtering-ivstIPCt)) to try and get as close to a design as possible and wanted to do more with it. I also was not able to get the apis for each job website so I thought this would be a fun opportunity to learn about puppeteer and how to scrape job websites for information. 
 
 
 ## Table of content
-
-1. [What I used in this project](#What-I-used-in-this-project)
-    1. [What I used in this project](#What's-used-in-this-project)
-    2. [References used](#References-used)
-1. [Websites it can scrape information from](#Websites-it-can-scrape-information-from)    
+1. [Websites it can currently scrape information from](#Websites-it-can-currently-scrape-information-from)
+1. [Technologies used in this project](#What-I-used-in-this-project)
+3. [References used](#References)
 2. [Parts of the Website](#Parts-of-the-website)
     1. [Search page](#search-page)
     2. [Puppeteer server](#puppeteer-server)
-    3. [Advanced Search options](#advanced-search)  
     4. [Saved Jobs](#gallery)
-    6. [PWA](#PWA)
-1. [Installation](#installation)    
-3. [Issues I had and changes I made](#Issues-I-had-and-changes-I-made)
 4. [Improvements](#Improvements)
-
-
+1. [Installation](#installation)    
 
 ## Websites it can currently scrape information from
 * LinkedIn
@@ -35,56 +29,53 @@ I created this as I enjoyed making the job filter design challenge from one of m
 * Reed
 * JobSite
 
-
-## Parts of the Website
-
-### Search page
-![main page](./READMEImages/mainPage.png)
-
-#### Advanced Search Options
-
-<img  height="400px" src="./READMEImages/advancedOptions.png">
-
-The advanced search options allows the user to pick which sites they want to scrape and which parameters to send to the website such as date posted and job type etc.
-
-### Saved Jobs
-![saved page](./READMEImages/savedPage.png)
-
-Saved Job Page loads the jobs the you have saved into the indexedDB. IDB-keyval is used here to simplify using indexedDB and it makes it easier to access the database in each component easily and without the need to check and setup it up.
-
-
-
-### Puppeteer server
-#### How it works
-The server listens for a request, once received it creates the urls for each of the selected websites from what was asked to scrape and the extra parameters the user has chosen. Once done, it opens the requested websites and scrapes each job from the front page of each website and send the job information back to the user via server sent events. I use server sent events here so that the user can track the progress of the server scraping via a loadbar with text details showing and telling the current progress.
-
-
-#### Issues I had
-The main issue I had with creating this puppeteer server was scraping the posted at details for each site as they would return a range of values such as 'yesterday', 'Expires in 3 days' and 'Posted 3 september'. This was a problem as it didnt give me a proper time or date value to use to be able to sort the information client side via time. To fix this I created two functions that worked out an estimate for he number of days it has been from the day it has been posted and sent that with each job item to the client.   
-
-### PWA
-
-
-
-
-
-
-
-
-
-
-## What's used in this project
+## Technologies used in this project
 * Javascript
 * Sass
 * React
 * Puppeteer
 * idb-keyval
 * React-router
-* Service-worker
 * express
-### References used
+## References 
+* [Observations running 2 million headless sessions](https://docs.browserless.io/blog/2018/06/04/puppeteer-best-practices.html) 
+
+## Parts of the Website
+
+### Search page
+![main page](./READMEImages/mainPage.png)
+
+#### Search and filter section
+The filter section can filter jobs by position/job, sites and sort the results by the id they came in or the time they were posted. There is also a layout select button that changes the results layout into small columns, medium columns, or rows. 
+
+Above the filter section, a load bar will display once a new search has been sent. The load bar uses the server-sent responses from the server to displays load status and progress of the download to the client. 
+#### Advanced Search Options
+The advanced search options allow the user to pick which sites they want to scrape and which parameters to send to the website, such as date posted and job type, etc.
+
+### Saved Jobs
+![saved page](./READMEImages/savedPage.png)
+
+Saved Job Page loads the jobs you have saved into the indexedDB. IDB-keyval is used here to simplify using indexedDB and it makes it easier to access the database in each component easily and without the need to check if the database is set up.
 
 
+### Puppeteer server
+#### How it works
+Once the server has received a request, it creates the URLs for each of the selected websites based on the given parameters. Once done, it opens the requested websites, scrapes each job from the front page of each website, and sends the job information back to the user via server-sent events. I use server-sent events here so that the user can track the progress of the server scraping via a load bar with text details showing and telling the current progress.
+
+#### Issues I had
+##### Getting the dates
+A small issue I had with creating this puppeteer server was scraping the posted at details for each site to use to sort the information client-side. Each site would return a range of values such as yesterday,  Expires in 3 days, Recently, and Posted 3 September" which are not a proper time or date value.  To fix this, I use two simple functions that worked out via regex and switch statements an estimate for the number of days it has been posted. The server sends the results with each job item to the client.  
+##### Memory Leak
+The main issue I had was to do with puppeteer chromium which at the start of this project started on the server creation. The request time was much faster than opening the browser and closing it after each client transaction. However, leaving the browser open on the server slowed my pc during testing due to a memory leak after a few hours of the server running. I worked out that this was because the browser likes to cache stuff and slowly eat more memory. Instead, I made sure the browser opened and closed after each client transaction with the server preventing a memory leak.
+
+## Improvements
+1. Add pagination feature to the server so the user can browse through multiple pages instead of just the first page of results of each site
+
+2. Add ability to reconnect where the user left off from the server if disconnected mid scrape  
+
+3. Add the option to organise saved jobs information into different sections such as collections and lists that the user has named and created to help them better organise their saved Jobs. 
+
+4. Use CSS modules to clean up styles and reduce chances of certain components changing other components
 
 ## Installation
 Steps to install the neccessary files:
@@ -100,7 +91,7 @@ cd server
 npm install
 
 
-cd ./client
+cd ../client
 npm install
 ```
 
@@ -110,20 +101,14 @@ npm install
 cd ./client
 npm run build
 ```
-2. Copy build file and paste it into the public folder in the server folder
+2. Copy the build file and paste its content into the public folder in the server folder
 
 3. Run server
 ```bash
 cd server
 node index.js
 ```
-4. The server will be available on http://localhost:3000/
+4. The server will be available on http://localhost:8080/
 
 
 
-## TO DO
-1. Add pagination to the server so the user can browse throught multiple pages instead on just the first page of results
-
-2. Add ability to reconnect where the user left off from the server if disconnected mid scrape  
-
-3. Add the option to organise the saved jobs information into different sections such as collections that the user has named and created to help the them better organise their saved Jobs. 
