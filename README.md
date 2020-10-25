@@ -1,6 +1,6 @@
-# Job-Scrapper project
+# Job-Scraper project
 
-_JobScrapper website and server using React and Puppeteer_ 
+_JobScraper website and server using React and Puppeteer_ 
 
 **[Demo](http://puppeteer-job-scraper.herokuapp.com/)** -
 LinkedIn is not available in the demo and is currently only working on http not https
