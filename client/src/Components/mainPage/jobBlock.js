@@ -1,7 +1,7 @@
 import React from 'react';
-import './jobBlock.scss';
-import Link from '../jobLink'
-import SiteLink from '../siteLink';
+import '../../styling/jobBlock.scss';
+import Link from './jobLink'
+import SiteLink from './siteLink';
 import {get, set, del} from 'idb-keyval';
 
 class JobBlock extends React.Component{

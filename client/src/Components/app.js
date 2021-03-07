@@ -5,9 +5,9 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import JobPage from "./mainPage/jobPage";
-import SavedJobsPage from './savedPage/SavedJobsPage'
-import {MySearchContext} from './searchBarContext';
+import JobPage from "../pages/jobPage";
+import SavedJobsPage from '../pages/SavedJobsPage'
+import {MySearchContext} from '../context/searchBarContext';
 
 class App extends React.Component{
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import './goToStyles.scss'
+import '../styling/goToStyles.scss'
 
 export default function GoToTopBot() {
     const scrollTop =()=>{

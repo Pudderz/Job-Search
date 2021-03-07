@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import './advancedOptions.scss'
-import { MySearchContext } from '../searchBarContext'
+import '../../styling/advancedOptions.scss'
+import { MySearchContext } from '../../context/searchBarContext'
 
 
 class FormPage extends Component {

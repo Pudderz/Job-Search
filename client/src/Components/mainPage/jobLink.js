@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './link.scss';
+import '../../styling/link.scss';
 const Link =(props)=> {
     
         if(props.site === 'indeed' || props.site === 'reed'){

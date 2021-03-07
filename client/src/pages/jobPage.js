@@ -1,12 +1,12 @@
 import React from 'react';
-import Search from '../Options/searchBar';
-import JobBlock from './jobBlock';
-import LoadBar from '../Options/LoadBar';
-import '../styles.scss';
-import '../advancedOptions/advancedOptions.scss'
-import SortResults from '../Options/sortJobsBy'
-import GoToTopBot from '../goToTopBot';
-import FormPage from '../advancedOptions/advancedOptions'
+import Search from '../Components/Options/searchBar';
+import JobBlock from '../Components/mainPage/jobBlock';
+import LoadBar from '../Components/Options/LoadBar';
+import '../styling/styles.scss';
+import '../styling/advancedOptions2.scss'
+import SortResults from '../Components/Options/sortJobsBy'
+import GoToTopBot from '../Components/goToTopBot';
+import FormPage from '../Components/advancedOptions/advancedOptions'
 class JobPage extends React.Component{
 
     handleFormChange= (a, b, c)=>{

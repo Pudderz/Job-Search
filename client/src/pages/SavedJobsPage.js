@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import JobBlock from '../mainPage/jobBlock'
-import GoToTopBot from '../goToTopBot'
+import JobBlock from '../Components/mainPage/jobBlock'
+import GoToTopBot from '../Components/goToTopBot'
 import {get , keys } from 'idb-keyval'
-import FilterResults from '../Options/filterResults'
-import './savedJobs.scss'
+import FilterResults from '../Components/Options/filterResults'
+import '../styling/savedJobs.scss'
 export default class SavedJobsPage extends Component {
     constructor(){
         super()

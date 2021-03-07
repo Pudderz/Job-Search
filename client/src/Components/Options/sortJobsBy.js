@@ -1,6 +1,6 @@
 import React from 'react'
 import FilterResults from './filterResults'
-import { MySearchContext } from '../searchBarContext'
+import { MySearchContext } from '../../context/searchBarContext'
 
 export default function sortResults() {
 

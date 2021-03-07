@@ -1,6 +1,6 @@
 import React, { Component , useRef, useEffect, useState} from 'react';
-import './searchStyles.scss'
-import {MySearchContext} from '../searchBarContext'
+import '../../styling/searchStyles.scss'
+import {MySearchContext} from '../../context/searchBarContext'
  export const Search = (props) => {
     let _isMounted = false
     // constructor(props){

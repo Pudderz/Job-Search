@@ -1,6 +1,6 @@
 
 #headerBackground{
-    background-image: url('./images/bg-header-desktop.svg');
+    background-image: url('../images/bg-header-desktop.svg');
     background-size: cover;
     background-color: #5ba4a4;
     background-position: center;
@@ -8,7 +8,7 @@
     margin-bottom: 8vh;
 
     @media (max-width: 700px){
-            background-image: url('./images/bg-header-mobile.svg'); 
+            background-image: url('../images/bg-header-mobile.svg'); 
     }
 
 }

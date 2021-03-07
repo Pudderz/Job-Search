@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import './loadBar.scss'
+import '../../styling/loadBar.scss'
 import LoadBarDetails from './loadBarDetails'
-import { MySearchContext } from '../searchBarContext'
+import { MySearchContext } from '../../context/searchBarContext'
 class LoadBar extends Component {
     
     render() { 
