@@ -1,60 +1,3 @@
-const puppeteer = require('puppeteer');
-const express = require('express');
-
-const scraper = require('./scraper/scrape');
-
-// All sites to scrape
-const reed = require('./scraper/Sites/reed');
-const jobsite = require('./scraper/Sites/jobsite');
-const linkedIn = require('./scraper/Sites/linkedin');
-const indeed = require('./scraper/Sites/indeed');
-
-//dotenv allows us to declare environment variables in a .env file
-require("dotenv").config();
-const path = require('path');
-const port = process.env.PORT || 8080;
-
-let browser;
-const app = express()
-
-app.listen(port, async ()=>{
-    console.log(`listening on : ${port}`)
-    browser = await puppeteer.launch({
-        headless: false,
-        'args' : [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        ]
-    });
-})
-
-app.use(express.static('public'))
-
-app.get('/stream', function(req, res) {
-  res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    "Access-Control-Allow-Origin": "*",
-
-  })
-  console.log('Scraping started')
-  sortScraping(res, req);
-})
-
-
-async function sortScraping(res, req){
-    await checkIfBrowserIsRunning();
-    whatJobsToScrape(res, req)
-}
-async function checkIfBrowserIsRunning(){
-    //Creates a new page
-    if(!browser)browser = await puppeteer.launch({headless: false,
-        'args' : [
-        '--no-sandbox',
-        '--disable-setuid-sandbox'
-        ]})
-}
 function  whatJobsToScrape(res, req) {
     
     const searchQuery = req.query.q; 
@@ -116,6 +59,5 @@ function  whatJobsToScrape(res, req) {
     }
 }
 
-app.get('*', function(req, res) {
-        res.sendFile(path.join(__dirname + '/public/index.html'));
-      });
+
+module.exports = whatJobsToScrape;
